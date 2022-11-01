@@ -5,8 +5,10 @@ import {IEmissionManager} from '../interfaces/IEmissionManager.sol';
 import {IProposalGenericExecutor} from '../interfaces/IProposalGenericExecutor.sol';
 
 /**
- * @dev Example proposal that could be executed via x-chain governance
- * This payload would add an EMISSION_ADMIN for a REWARD token on the specified EMISSION_MANAGER.
+ * @title AddEmissionAdminPayload
+ * @author BGD Labs
+ * @dev Generic proposal to be executed via cross-chain governance.
+ * Once executed this payload would add an EMISSION_ADMIN for a REWARD token on the specified EMISSION_MANAGER.
  */
 contract AddEmissionAdminPayload is IProposalGenericExecutor {
   IEmissionManager public immutable EMISSION_MANAGER;
