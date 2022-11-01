@@ -2,12 +2,13 @@
 pragma solidity ^0.8.0;
 
 import {IEmissionManager} from '../interfaces/IEmissionManager.sol';
+import {IProposalGenericExecutor} from '../interfaces/IProposalGenericExecutor.sol';
 
 /**
  * @dev Example proposal that could be executed via x-chain governance
  * This payload would add an EMISSION_ADMIN for a REWARD token on the specified EMISSION_MANAGER.
  */
-contract AddEmissionAdminPayload {
+contract AddEmissionAdminPayload is IProposalGenericExecutor {
   IEmissionManager public immutable EMISSION_MANAGER;
 
   address public immutable REWARD;
