@@ -1,5 +1,5 @@
 {
-  "name": "bgd-forge-template",
+  "name": "example-liquidity-mining-aave-v3",
   "version": "1.0.0",
   "scripts": {
     "lint": "prettier ./",
@@ -7,17 +7,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/bgd-labs/bgd-forge-template.git"
+    "url": "git+https://github.com/bgd-labs/example-liquidity-mining-aave-v3.git"
   },
   "keywords": [],
   "author": "BGD labs",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/bgd-labs/bgd-forge-template/issues"
+    "url": "https://github.com/bgd-labs/example-liquidity-mining-aave-v3/issues"
   },
-  "homepage": "https://github.com/bgd-labs/bgd-forge-template#readme",
+  "homepage": "https://github.com/bgd-labs/example-liquidity-mining-aave-v3#readme",
   "devDependencies": {
-    "prettier": "^2.7.1",
-    "prettier-plugin-solidity": "^1.0.0-beta.19"
+    "prettier": "^2.8.3",
+    "prettier-plugin-solidity": "^1.1.1"
   }
 }

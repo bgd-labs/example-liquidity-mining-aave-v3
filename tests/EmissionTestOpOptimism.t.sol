@@ -10,7 +10,7 @@ import {BaseTest} from './utils/BaseTest.sol';
 
 import {AddEmissionAdminPayload} from '../src/contracts/AddEmissionAdminPayload.sol';
 
-contract EmissionTest is BaseTest {
+contract EmissionTestOpOptimism is BaseTest {
   /// @dev Used to simplify the definition of a program of emissions
   /// @param asset The asset on which to put reward on, usually Aave atokens or variable debt tokens
   /// @param emission Total emission of a `reward` token during the whole distribution duration defined
