@@ -3,17 +3,18 @@ pragma solidity ^0.8.0;
 
 import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
-import {AaveV3Polygon} from 'aave-address-book/AaveV3Polygon.sol';
+import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
+import {IAaveIncentivesController} from '../src/interfaces/IAaveIncentivesController.sol';
 
 import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../src/interfaces/IEmissionManager.sol';
 import {BaseTest} from './utils/BaseTest.sol';
 
 contract EmissionTestSDPolygon is BaseTest {
   /// @dev Used to simplify the definition of a program of emissions
-  /// @param asset The asset on which to put reward on, usually Aave atokens or variable debt tokens
+  /// @param asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
   /// @param emission Total emission of a `reward` token during the whole distribution duration defined
-  /// E.g. With an emission of 10_344 SD tokens during 1 month, an emission of 10% for aUSDC would be
-  /// 10_344 * 1e18 * 10% / 30 days in seconds = 1034.4 * 1e18 / 864_000 = ~ 0.00039907 * 1e18
+  /// E.g. With an emission of 13_520 SD tokens during 1 month, an emission of 50% for aPolMATICX would be
+  /// 13_520 * 1e18 * 50% / 30 days in seconds = 1_352 * 1e18 / 2_592_000 = ~ 0.000521604 * 1e18 SD per second
   struct EmissionPerAsset {
     address asset;
     uint256 emission;
@@ -24,14 +25,19 @@ contract EmissionTestSDPolygon is BaseTest {
   IEACAggregatorProxy constant REWARD_ORACLE =
     IEACAggregatorProxy(0x30E9671a8092429A358a4E31d41381aa0D10b0a0); // SD/USD
 
+  /// @dev already deployed and configured for the both the SD asset and the 0x51358004cFe135E64453d7F6a0dC433CAba09A2a
+  /// EMISSION_ADMIN
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0xC51e6E38d406F98049622Ca54a6096a23826B426);
 
-  uint256 constant TOTAL_DISTRIBUTION = 31_032 ether; // 10'344 SD/month, 3 months
-  uint88 constant DURATION_DISTRIBUTION = 90 days;
+  uint256 constant TOTAL_DISTRIBUTION = 81_120 ether; // 13'520 SD/month, 6 months
+  uint88 constant DURATION_DISTRIBUTION = 180 days;
+
+  address SD_WHALE = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+  address aPolMATICX_WHALE = 0x807c561657E4Bf582Eee6C34046B0507Fc359960;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('polygon'), 38788190);
+    vm.createSelectFork(vm.rpcUrl('polygon'), 39010930);
   }
 
   function test_activation() public {
@@ -46,11 +52,45 @@ contract EmissionTestSDPolygon is BaseTest {
 
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
 
-    emit log_bytes(
+    emit log_named_bytes(
+      'calldata to submit from Gnosis Safe',
       abi.encodeWithSelector(
         IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).configureAssets.selector,
         _getAssetConfigs()
       )
+    );
+
+    vm.stopPrank();
+
+    vm.startPrank(SD_WHALE);
+    IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, 50_000 ether);
+
+    vm.stopPrank();
+
+    vm.startPrank(0x807c561657E4Bf582Eee6C34046B0507Fc359960);
+
+    vm.warp(block.timestamp + 2_592_000);
+
+    address[] memory assets = new address[](1);
+    assets[0] = 0x80cA0d8C38d2e2BcbaB66aA1648Bd1C7160500FE;
+
+    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(aPolMATICX_WHALE);
+
+    IAaveIncentivesController(AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
+      assets,
+      type(uint256).max,
+      aPolMATICX_WHALE,
+      REWARD_ASSET
+    );
+
+    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(aPolMATICX_WHALE);
+
+    uint256 deviationAccepted = 2200 ether; // Approx estimated rewards with current emission in 1 month
+    assertApproxEqAbs(
+      balanceBefore,
+      balanceAfter,
+      deviationAccepted,
+      'Invalid delta on claimed rewards'
     );
 
     vm.stopPrank();
@@ -79,9 +119,11 @@ contract EmissionTestSDPolygon is BaseTest {
   }
 
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
-    EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](0);
-
-    // TODO add realistic emissions for the example
+    EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
+    emissionsPerAsset[0] = EmissionPerAsset({
+      asset: AaveV3PolygonAssets.MaticX_A_TOKEN,
+      emission: TOTAL_DISTRIBUTION // 100% of the distribution
+    });
 
     uint256 totalDistribution;
     for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
