@@ -21,6 +21,7 @@ contract SDDeployTransferStrategy is Script {
   }
 }
 
+/// @dev same to be used for MATICX, as they share rewards vault and emission admin
 contract STMATICDeployTransferStrategy is Script {
   address internal constant REWARDS_VAULT = EMISSION_ADMIN;
   address internal constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263;
