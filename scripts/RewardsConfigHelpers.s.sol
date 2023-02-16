@@ -6,7 +6,6 @@ import {PullRewardsTransferStrategy} from 'aave-v3-periphery/contracts/rewards/t
 import {AaveV3Polygon} from 'aave-address-book/AaveV3Polygon.sol';
 
 contract SDDeployTransferStrategy is Script {
-  address internal constant REWARDS_CONTROLLER = 0x929EC64c34a17401F460460D4B9390518E5B473e;
   address internal constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a;
   address internal constant REWARDS_VAULT = EMISSION_ADMIN;
 
