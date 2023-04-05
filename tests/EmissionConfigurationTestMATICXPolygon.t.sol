@@ -18,6 +18,26 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     uint256 emission;
   }
 
+  /// @dev Used to simplify the configuration of new emissions per second after the emissions program has been created
+  /// @param asset The asset for which new emissions per second needs to be configured
+  /// @param rewards The rewards for which new emissions per second needs to be configured
+  /// @param newEmissionsPerSecond The new emissions per second of the `reward` tokens
+  struct NewEmissionPerAsset {
+    address asset;
+    address[] rewards;
+    uint88[] newEmissionsPerSecond;
+  }
+
+  /// @dev Used to simplify the configuration of new distribution end after the emissions program has been created
+  /// @param asset The asset for which new distribution end needs to be configured
+  /// @param reward The reward for which new distribution end needs to be configured
+  /// @param newDistributionEnd The new distribution end of the asset and reward
+  struct NewDistributionEndPerAsset {
+    address asset;
+    address reward;
+    uint32 newDistributionEnd;
+  }
+
   address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
   address constant REWARD_ASSET = AaveV3PolygonAssets.MaticX_UNDERLYING;
   IEACAggregatorProxy constant REWARD_ORACLE =
@@ -41,7 +61,7 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     vm.createSelectFork(vm.rpcUrl('polygon'), 39361970);
   }
 
-  function test_setEmissionPerSecond() public {
+  function test_setNewEmissionPerSecond() public {
     vm.startPrank(EMISSION_ADMIN);
 
     IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
@@ -53,27 +73,23 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, 50_000 ether);
     vm.stopPrank();
 
-    address[] memory rewards = new address[](1);
-    rewards[0] = REWARD_ASSET;
-
-    uint88[] memory newEmissionsPerSecond = new uint88[](1);
-    newEmissionsPerSecond[0] = _toUint88(NEW_TOTAL_DISTRIBUTION / DURATION_DISTRIBUTION);
+    NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
 
     // The emission admin can change the emission per second of the reward after the rewards have been configured.
     // Here we change the initial emission per second to the new one.
     vm.startPrank(EMISSION_ADMIN);
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).setEmissionPerSecond(
-      AaveV3PolygonAssets.WMATIC_V_TOKEN,
-      rewards,
-      newEmissionsPerSecond
+      newEmissionPerAsset.asset,
+      newEmissionPerAsset.rewards,
+      newEmissionPerAsset.newEmissionsPerSecond
     );
     emit log_named_bytes(
       'calldata to execute tx on EMISSION_MANAGER to set the new emission per second from the emissions admin (safe)',
       abi.encodeWithSelector(
         IEmissionManager.setEmissionPerSecond.selector,
-        AaveV3PolygonAssets.WMATIC_V_TOKEN,
-        rewards,
-        newEmissionsPerSecond
+        newEmissionPerAsset.asset,
+        newEmissionPerAsset.rewards,
+        newEmissionPerAsset.newEmissionsPerSecond
       )
     );
     vm.stopPrank();
@@ -108,7 +124,7 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     );
   }
 
-  function test_setDistributionEnd() public {
+  function test_setNewDistributionEnd() public {
     vm.startPrank(EMISSION_ADMIN);
 
     IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
@@ -125,18 +141,20 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     // Here we change the distribution end to the new one.
     vm.startPrank(EMISSION_ADMIN);
 
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
+
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).setDistributionEnd(
-      AaveV3PolygonAssets.WMATIC_V_TOKEN,
-      REWARD_ASSET,
-      _toUint32(block.timestamp + NEW_DURATION_DISTRIBUTION_END)
+      newDistributionEndPerAsset.asset,
+      newDistributionEndPerAsset.reward,
+      newDistributionEndPerAsset.newDistributionEnd
     );
     emit log_named_bytes(
       'calldata to execute tx on EMISSION_MANAGER to set the new distribution end from the emissions admin (safe)',
       abi.encodeWithSelector(
         IEmissionManager.setDistributionEnd.selector,
-        AaveV3PolygonAssets.WMATIC_V_TOKEN,
-        REWARD_ASSET,
-        block.timestamp + NEW_DURATION_DISTRIBUTION_END
+        newDistributionEndPerAsset.asset,
+        newDistributionEndPerAsset.reward,
+        newDistributionEndPerAsset.newDistributionEnd
       )
     );
 
@@ -208,6 +226,31 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
 
     return emissionsPerAsset;
+  }
+
+  function _getNewEmissionPerSecond() internal pure returns (NewEmissionPerAsset memory) {
+    NewEmissionPerAsset memory newEmissionPerAsset;
+
+    address[] memory rewards = new address[](1);
+    rewards[0] = REWARD_ASSET;
+    uint88[] memory newEmissionsPerSecond = new uint88[](1);
+    newEmissionsPerSecond[0] = _toUint88(NEW_TOTAL_DISTRIBUTION / DURATION_DISTRIBUTION);
+
+    newEmissionPerAsset.asset = AaveV3PolygonAssets.WMATIC_V_TOKEN;
+    newEmissionPerAsset.rewards = rewards;
+    newEmissionPerAsset.newEmissionsPerSecond = newEmissionsPerSecond;
+
+    return newEmissionPerAsset;
+  }
+
+  function _getNewDistributionEnd() internal view returns (NewDistributionEndPerAsset memory) {
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset;
+
+    newDistributionEndPerAsset.asset = AaveV3PolygonAssets.WMATIC_V_TOKEN;
+    newDistributionEndPerAsset.reward = REWARD_ASSET;
+    newDistributionEndPerAsset.newDistributionEnd = _toUint32(block.timestamp + NEW_DURATION_DISTRIBUTION_END);
+
+    return newDistributionEndPerAsset;
   }
 
   function _toUint88(uint256 value) internal pure returns (uint88) {
