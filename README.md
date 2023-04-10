@@ -8,17 +8,15 @@ This repository contains:
 
 ## Instructions to activate Liquidity Mining on Aave V3:
 
-<img width="924" alt="Screenshot 2023-04-06 at 12 47 24 PM" src="https://user-images.githubusercontent.com/22850280/230302952-44da8732-3a2a-4ebb-96cb-90262b420c04.png">
+<img width="924" alt="Screenshot 2023-04-10 at 11 27 10 AM" src="https://user-images.githubusercontent.com/22850280/230836420-7b5c4bba-d851-4258-90c6-602d33eaf845.png">
 
-1. Make sure the rewards funds that are needed to be distributed for Liquidity Mining are present in the Emission Admin address.
+1. Make sure the rewards funds that are needed to be distributed for Liquidity Mining are present in the Rewards Vault.
 
-   _Note: The Emission Admin is an address which has access to manange and configure the reward emissions by calling the Emission Manager contract._
+2. Do an ERC-20 approve of the total rewards to be distributed to the Transfer Strategy contract, this is contract by Aave which helps to pull the Liquidity Mining rewards from the Rewards Vault address to distribute to the user. To know more about how Transfer Strategy contract works you can check [here](https://github.com/aave/aave-v3-periphery/blob/master/docs/rewards/rewards-transfer-strategies.md).
 
-2. Do an ERC-20 approve of the total rewards to be distributed to the Transfer Strategy contract, this is contract by Aave which helps to pull the Liquidity Mining rewards from the Emission Admin address to distribute to the user. To know more about how Transfer Strategy contract works you can check [here](https://github.com/aave/aave-v3-periphery/blob/master/docs/rewards/rewards-transfer-strategies.md).
+   _Note: The Emission Admin is an address which has access to manange and configure the reward emissions by calling the Emission Manager contract and the    general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
 
-   _Note: The general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
-
-3. Finally we need to configure the Liquidity Mining emissions on the Emission Manager contract by calling the `configureAssets()` function which will take the array of the following struct to configure liquidity mining for mulitple assets for the same reward or multiple assets for mutiple rewards.
+3. Finally we need to configure the Liquidity Mining emissions on the Emission Manager contract from the Emission Admin by calling the `configureAssets()` function which will take the array of the following struct to configure liquidity mining for mulitple assets for the same reward or multiple assets for mutiple rewards.
 
    ```
    EMISSION_MANAGER.configureAssets([{
@@ -44,13 +42,13 @@ This repository contains:
 
 Below is an example with the pseudo code to activate Liquidity Mining for the variable borrow of `wMatic` with `MaticX` as the reward token for the total amount of `60,000` `MaticX` for the total duration of `6 months`. For a more detailed explanation checkout this [test](./tests/EmissionTestMATICXPolygon.t.sol).
 
-1. Make sure EMISSION_ADMIN has sufficient balance of the MaticX token.
+1. Make sure the Rewards Vault has sufficient balance of the MaticX token.
 
    ```
-   IERC20(MATIC_X_ADDRESS).balanceOf(EMISSION_ADMIN) > 60000 *1e18
+   IERC20(MATIC_X_ADDRESS).balanceOf(REWARDS_VAULT) > 60000 *1e18
    ```
 
-2. Do an ERC-20 approve from the MaticX token to the transfer strategy contract for the total amount.
+2. Do an ERC-20 approve from the MaticX token from the Rewards Vault to the transfer strategy contract for the total amount.
 
    ```
    IERC20(MATIC_X_ADDRESS).approve(TRANSFER_STRATEGY_ADDRESS, 60000 *1e18);
@@ -89,6 +87,8 @@ The emissions can be modified there, with the only requirement being that `sum(a
 
 You can run the test via `forge test -vv` which will emit the selector encoded calldata for `configureAssets` on the emission admin which you can use to execute the configuration changes e.g. via Safe.
 
+_Note: The test example above uses total distribution and duration distribution just for convenience to define emissions per second, in reality as we only pass emissions per second to `configureAssets()` we could define it in any way we wish._
+
 ## How to configure emissions after the LM program has been created?
 
 After the LM program has been created, the emissions per second and the distribution end could be changed later on by the emissions admin to reduce the LM rewards or change the end date for the distribution. This can be done by calling `setEmissionPerSecond()` and `setDistributionEnd()` on the Emission Manager contract. The test examples on [EmissionConfigurationTestMATICXPolygon.t.sol](./tests/EmissionConfigurationTestMATICXPolygon.t.sol) shows how to do so.
@@ -107,9 +107,26 @@ Similarly you can also run the test via `forge test -vv` which will emit the sel
 
   Yes, Liquidity Mining could be configured for multiple rewards for the same asset.
 
-- Why do we need to approve funds to the Aave Transfer Strategy contract?
+- Why do we need to approve funds from the Rewards Vault to the Aave Transfer Strategy contract?
 
-  This is needed so the Transfer Strategy contract can pull the rewards from the Emission Admin to distribute it to the user when the user claims them.
+  This is needed so the Transfer Strategy contract can pull the rewards from the Rewards Vault to distribute it to the user when the user claims them.
+  
+- Can I reuse an already deployed transfer strategy?
+    
+    Yes, a transfer strategy could be reused if it has already been deployed for the given network (given that you want the rewards vault, rewards admin and the incentives controller to be the same).
+    
+- If a transfer strategy does not exist, how do I create one?
+
+    The transfer strategy is an immutable contract which determines the logic of the rewards transfer. To create a new pull reward transfer strategy (most     common transfer strategy for liquidity mining) you could use the 
+[PullRewardsTransferStrategy.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol) contract with the following constructor params:
+
+    - `incentivesController`: address of the incentives controller
+    - `rewardsAdmin`: address of the incentives controller for access control
+    - `rewardsVault`: address of the rewards vault containing the funds for the Liquidity Mining program.
+
+    Example to deploy a transfer strategy can be found [here](./scripts/RewardsConfigHelpers.s.sol).
+    
+    _Note: All transfer strategy should inherit from the base contract [TransferStrategyBase.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/TransferStrategyBase.sol) and you could also define your own custom transfer                   strategy even with NFT’s as rewards, given that you inherit from the base contract._
 
 - Can we stop the liquidity mining program at any time?
 
