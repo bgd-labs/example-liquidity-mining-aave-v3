@@ -14,7 +14,7 @@ This repository contains:
 
 2. Do an ERC-20 approve of the total rewards to be distributed to the Transfer Strategy contract, this is contract by Aave which helps to pull the Liquidity Mining rewards from the Rewards Vault address to distribute to the user. To know more about how Transfer Strategy contract works you can check [here](https://github.com/aave/aave-v3-periphery/blob/master/docs/rewards/rewards-transfer-strategies.md).
 
-   _Note: The Emission Admin is an address which has access to manange and configure the reward emissions by calling the Emission Manager contract and the    general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
+   _Note: The Emission Admin is an address which has access to manage and configure the reward emissions by calling the Emission Manager contract and the    general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
 
 3. Finally we need to configure the Liquidity Mining emissions on the Emission Manager contract from the Emission Admin by calling the `configureAssets()` function which will take the array of the following struct to configure liquidity mining for mulitple assets for the same reward or multiple assets for mutiple rewards.
 
