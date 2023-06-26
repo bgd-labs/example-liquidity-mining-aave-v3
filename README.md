@@ -12,6 +12,8 @@ This repository contains:
 
 1. Make sure the rewards funds that are needed to be distributed for Liquidity Mining are present in the Rewards Vault.
 
+   _Note: The Rewards Vault is your address which contains the reward asset._
+
 2. Do an ERC-20 approve of the total rewards to be distributed to the Transfer Strategy contract, this is contract by Aave which helps to pull the Liquidity Mining rewards from the Rewards Vault address to distribute to the user. To know more about how Transfer Strategy contract works you can check [here](https://github.com/aave/aave-v3-periphery/blob/master/docs/rewards/rewards-transfer-strategies.md).
 
    _Note: The Emission Admin is an address which has access to manage and configure the reward emissions by calling the Emission Manager contract and the    general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
@@ -35,7 +37,7 @@ This repository contains:
 
      transferStrategy: The address of transfer strategy contract.
 
-     rewardOracle: The Chainlink Aggregator compatible Price Oracle of the reward.
+     rewardOracle: The Chainlink Aggregator compatible Price Oracle of the reward (used on off-chain infra like UI for price conversion).
 
    }])
    ```
@@ -75,10 +77,6 @@ Below is an example with the pseudo code to activate Liquidity Mining for the va
 
    }])
    ```
-
-Awesome! so liquidity mining has been succefully configured now.
-
-After the Liquidity Mining has been set, we can also configure later on to increase or decrease the rewards (emissions per second) and to change the end date for liquidity mining. More info on this below.
 
 ## How to modify emissions of the LM program?
 
@@ -135,7 +133,8 @@ Similarly you can also run the test via `forge test -vv` which will emit the sel
 
 - Can we change the amount of liquidty mining rewards?
 
-  Yes, the liquidity mining rewards could be increased or decreased by the Emission Admin.
+  Yes, the liquidity mining rewards could be increased or decreased by the Emission Admin. To do so, please refer
+[here](https://github.com/bgd-labs/example-liquidity-mining-aave-v3/tree/feat/configure-emissions#how-to-configure-emissions-after-the-lm-program-has-been-created)
 
 ### Setup
 
