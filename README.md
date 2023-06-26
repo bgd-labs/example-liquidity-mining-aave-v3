@@ -130,6 +130,7 @@ Similarly you can also run the test via `forge test -vv` which will emit the sel
 
   Yes, the liquidity mining program could be stopped at any moment by the Emission Admin.
   The duration of the Liquidity Mining program could be increased as well, totally the choice of Emission Admin.
+  To stop the liquidity mining, we can either set the emissions per second to 0 or set the distribution end to the block we wish to stop liquiditiy mining at.
 
 - Can we change the amount of liquidty mining rewards?
 
