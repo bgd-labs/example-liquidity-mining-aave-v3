@@ -10,6 +10,7 @@ build  :; forge build --sizes --via-ir
 test   :; forge test -vvv
 test-sd-rewards :; forge test -vvv --match-contract EmissionTestSDPolygon
 test-stmatic-rewards :; forge test -vvv --match-contract EmissionTestSTMATICPolygon
+test-Ethx-rewards :; forge test -vvv --match-contract EmissionTestEthXMainnet
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 
 # scripts
