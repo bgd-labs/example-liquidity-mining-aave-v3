@@ -44,7 +44,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   address a_ETHx_WHALE = 0x5A14BD3f2bf84c3690d653F1d40cfb7a8a9B3c26;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('Ethereum'), 36478868);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20211531);
   }
 
   function test_activation() public {
