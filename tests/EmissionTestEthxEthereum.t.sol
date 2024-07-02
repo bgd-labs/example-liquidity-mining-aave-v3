@@ -126,7 +126,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
     emissionsPerAsset[0] = EmissionPerAsset({
-      asset: SD,
+      asset: a_ETHx,
       emission: TOTAL_DISTRIBUTION // 100% of the distribution
     });
 
