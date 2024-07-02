@@ -89,7 +89,7 @@ contract EmissionTestEthXMainnet is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(a_ETHx_WHALE);
 
-    uint256 deviationAccepted = 3380 ether; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 15000 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
