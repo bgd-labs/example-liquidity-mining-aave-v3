@@ -32,9 +32,8 @@ contract EmissionTestEthXMainnet is BaseTest {
   IEACAggregatorProxy constant REWARD_ORACLE =
     IEACAggregatorProxy(AaveV3EthereumAssets.USDC_ORACLE); // temp set to USDC, replace with SD pricefeed before deploy
 
-  /// @dev already deployed and configured for the both the SD asset and the 0xac140648435d03f784879cd789130F22Ef588Fcd EMISSION_ADMIN
   ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a);
+    ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a); // new deployed strategy
 
   uint256 constant TOTAL_DISTRIBUTION = 15_000 ether; // 15'000 SD/month, 1 month
   uint88 constant DURATION_DISTRIBUTION = 30 days;
