@@ -5,7 +5,6 @@ import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {AaveV3Ethereum, AaveV3EthereumAssets} from 'aave-address-book/AaveV3Ethereum.sol';
 import {IAaveIncentivesController} from '../src/interfaces/IAaveIncentivesController.sol';
-
 import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../src/interfaces/IEmissionManager.sol';
 import {BaseTest} from './utils/BaseTest.sol';
 import 'forge-std/console.sol';
@@ -44,7 +43,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   address a_ETHx_WHALE = 0x5A14BD3f2bf84c3690d653F1d40cfb7a8a9B3c26;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20211531);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20218776);
   }
 
   function test_activation() public {
