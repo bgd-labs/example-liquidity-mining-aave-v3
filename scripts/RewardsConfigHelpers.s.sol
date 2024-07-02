@@ -4,9 +4,10 @@ pragma solidity ^0.8.0;
 import {Script} from 'forge-std/Script.sol';
 import {PullRewardsTransferStrategy} from 'aave-v3-periphery/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol';
 import {AaveV3Polygon} from 'aave-address-book/AaveV3Polygon.sol';
+import {AaveV3Ethereum} from 'aave-address-book/AaveV3Ethereum.sol';
 
 contract SDDeployTransferStrategy is Script {
-  address internal constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a;
+  address internal constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd;
   address internal constant REWARDS_VAULT = EMISSION_ADMIN;
 
   function run() external {
@@ -29,6 +30,21 @@ contract STMATICDeployTransferStrategy is Script {
     vm.startBroadcast();
     new PullRewardsTransferStrategy(
       AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER,
+      EMISSION_ADMIN,
+      REWARDS_VAULT
+    );
+    vm.stopBroadcast();
+  }
+}
+
+contract SDMainnetDeployTransferStrategy is Script {
+  address internal constant REWARDS_VAULT = EMISSION_ADMIN;
+  address internal constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd;
+
+  function run() external {
+    vm.startBroadcast();
+    new PullRewardsTransferStrategy(
+      AaveV3Ethereum.DEFAULT_INCENTIVES_CONTROLLER,
       EMISSION_ADMIN,
       REWARDS_VAULT
     );
