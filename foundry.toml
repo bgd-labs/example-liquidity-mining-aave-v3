@@ -3,6 +3,7 @@ src = 'src'
 test = 'tests'
 script = 'scripts'
 out = 'out'
+evm_version = 'shanghai'
 libs = ['lib']
 remappings = [
     "@aave/core-v3/=lib/aave-v3-core/",

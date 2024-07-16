@@ -13,7 +13,7 @@ test-contract :; forge test --match-contract ${filter} -vv
 
 test-sd-rewards :; forge test -vvv --match-contract EmissionTestSDPolygon
 test-stmatic-rewards :; forge test -vvv --match-contract EmissionTestSTMATICPolygon
-test-Ethx-rewards :; forge test -vvv --match-contract EmissionTestEthXMainnet
+test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestEthXMainnet
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 
 # scripts

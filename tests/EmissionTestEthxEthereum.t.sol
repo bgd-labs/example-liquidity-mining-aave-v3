@@ -35,7 +35,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a); // new deployed strategy
 
-  uint256 constant TOTAL_DISTRIBUTION = 15_000 ether; // 15'000 SD/month, 1 month
+  uint256 constant TOTAL_DISTRIBUTION = 25_000 ether; // 25'000 SD/month, 1 month
   uint88 constant DURATION_DISTRIBUTION = 30 days;
 
   address SD_WHALE = 0xae7104B8eFeD6Cf969369a1972e97f1891D9BECE;
@@ -89,7 +89,7 @@ contract EmissionTestEthXMainnet is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(a_ETHx_WHALE);
 
-    uint256 deviationAccepted = 15000 ether; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 25000 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
