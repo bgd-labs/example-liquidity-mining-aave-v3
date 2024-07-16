@@ -19,6 +19,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   // SD is not part of the onboarded assets on Aave, we can't call lib so we import it here
 
   address constant SD = 0x30D20208d987713f46DFD34EF128Bb16C404D10f;
+  address constant SD_ORACLE = 0x92F786E1Cb028FF9D12c7597fBD8ecc266E9e8fb;
   address constant a_ETHx = 0x1c0E06a0b1A4c160c17545FF2A951bfcA57C0002;
 
   struct EmissionPerAsset {
@@ -29,8 +30,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // ACI
   address constant REWARD_ASSET = SD;
 
-  IEACAggregatorProxy constant REWARD_ORACLE =
-    IEACAggregatorProxy(AaveV3EthereumAssets.USDC_ORACLE); // temp set to USDC, replace with SD pricefeed before deploy
+  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(SD_ORACLE);
 
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a); // new deployed strategy
@@ -42,7 +42,7 @@ contract EmissionTestEthXMainnet is BaseTest {
   address a_ETHx_WHALE = 0x5A14BD3f2bf84c3690d653F1d40cfb7a8a9B3c26;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20218776);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20320183);
   }
 
   function test_activation() public {
