@@ -87,7 +87,7 @@ contract EmissionTestBTCbAvax is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(BTCb_A_Token_WHALE);
 
-    uint256 deviationAccepted = 4000 ether; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 4_000 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,

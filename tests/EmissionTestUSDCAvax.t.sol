@@ -14,7 +14,7 @@ contract EmissionTestUSDCAvax is BaseTest {
   //  asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
   //  emission Total emission of a `reward` token during the whole distribution duration defined
   // E.g. With an emission of 10_000 MATICX tokens during 1 month, an emission of 50% for variableDebtPolWMATIC would be
-  // 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_592_000 = ~ 0.0003858 * 1e18 MATICX per second
+  // 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_594_000 = ~ 0.0003858 * 1e18 MATICX per second
 
   address constant wAVAX = AaveV3AvalancheAssets.WAVAX_UNDERLYING;
   address constant wAVAX_ORACLE = AaveV3AvalancheAssets.WAVAX_ORACLE;
@@ -33,7 +33,7 @@ contract EmissionTestUSDCAvax is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0xF585F8cf39C1ef5353326e0352B9E237f9A52587); // new deployed strategy
 
-  uint256 constant TOTAL_DISTRIBUTION = 2_000 ether; // 2'000 wAVAX/15 Days
+  uint256 constant TOTAL_DISTRIBUTION = 4_000 ether; // 4'000 wAVAX/15 Days
   uint88 constant DURATION_DISTRIBUTION = 15 days;
 
   address wAVAX_WHALE = 0x0dDBa20fa3B247fB3381cdE1a1FAe35C032e33fC;
@@ -87,7 +87,7 @@ contract EmissionTestUSDCAvax is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(USDC_A_TOKEN_WHALE);
 
-    uint256 deviationAccepted = 2000 ether; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 4_000 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,

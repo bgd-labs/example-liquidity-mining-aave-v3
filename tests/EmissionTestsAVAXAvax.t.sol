@@ -33,7 +33,7 @@ contract EmissionTestsAVAXAvax is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0xF585F8cf39C1ef5353326e0352B9E237f9A52587); // new deployed strategy
 
-  uint256 constant TOTAL_DISTRIBUTION = 300 ether; // 300 wAVAX/15 Days
+  uint256 constant TOTAL_DISTRIBUTION = 600 ether; // 600 wAVAX/15 Days
   uint88 constant DURATION_DISTRIBUTION = 15 days;
 
   address wAVAX_WHALE = 0x0dDBa20fa3B247fB3381cdE1a1FAe35C032e33fC;
@@ -87,7 +87,7 @@ contract EmissionTestsAVAXAvax is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(sAVAX_A_TOKEN_WHALE);
 
-    uint256 deviationAccepted = 300 ether; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 600 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
