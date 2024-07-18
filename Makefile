@@ -19,6 +19,7 @@ test-wAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract
 test-USDC-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDCAvax
 test-sAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestsAVAXAvax
 test-USDT-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDTAvax
+test-Avax-LM-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestAVAXLMAvax
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 
 # scripts
