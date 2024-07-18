@@ -130,26 +130,11 @@ contract EmissionTestAVAXLMAvax is BaseTest {
 
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](5);
-    emissionsPerAsset[0] = EmissionPerAsset({
-      asset: WAVAX_V_TOKEN,
-      emission: 2_000 ether 
-    });
-    emissionsPerAsset[1] = EmissionPerAsset({
-      asset: BTCb_A_TOKEN,
-      emission: 4_000 ether 
-    });
-    emissionsPerAsset[2] = EmissionPerAsset({
-      asset: sAVAX_A_TOKEN,
-      emission: 600 ether 
-    });
-    emissionsPerAsset[3] = EmissionPerAsset({
-      asset: USDt_A_TOKEN,
-      emission: 2_000 ether 
-    });
-    emissionsPerAsset[4] = EmissionPerAsset({
-      asset: USDC_A_TOKEN,
-      emission: 4_000 ether 
-    });
+    emissionsPerAsset[0] = EmissionPerAsset({asset: WAVAX_V_TOKEN, emission: 2_000 ether});
+    emissionsPerAsset[1] = EmissionPerAsset({asset: BTCb_A_TOKEN, emission: 4_000 ether});
+    emissionsPerAsset[2] = EmissionPerAsset({asset: sAVAX_A_TOKEN, emission: 600 ether});
+    emissionsPerAsset[3] = EmissionPerAsset({asset: USDt_A_TOKEN, emission: 2_000 ether});
+    emissionsPerAsset[4] = EmissionPerAsset({asset: USDC_A_TOKEN, emission: 4_000 ether});
 
     uint256 totalDistribution;
     for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
