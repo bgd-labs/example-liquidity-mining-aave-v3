@@ -17,6 +17,8 @@ test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract Em
 test-BTCb-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestBTCbAvax
 test-wAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestwAVAXAvax
 test-USDC-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDCAvax
+test-sAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestsAVAXAvax
+test-USDT-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDTAvax
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 
 # scripts
