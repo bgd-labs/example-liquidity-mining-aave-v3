@@ -77,23 +77,31 @@ contract EmissionTestAVAXLMAvax is BaseTest {
     IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION);
     vm.stopPrank();
 
-    vm.startPrank(WAVAX_V_TOKEN_WHALE);
+    _testClaimRewardsForWhale(WAVAX_V_TOKEN_WHALE, WAVAX_V_TOKEN);
+    _testClaimRewardsForWhale(BTCb_A_Token_WHALE, BTCb_A_TOKEN);
+    _testClaimRewardsForWhale(sAVAX_A_TOKEN_WHALE, sAVAX_A_TOKEN);
+    _testClaimRewardsForWhale(USDt_A_TOKEN_WHALE, USDt_A_TOKEN);
+    _testClaimRewardsForWhale(USDC_A_TOKEN_WHALE, USDC_A_TOKEN);
+  }
+
+  function _testClaimRewardsForWhale(address whale, address asset) internal {
+    vm.startPrank(whale);
 
     vm.warp(block.timestamp + 15 days);
 
     address[] memory assets = new address[](1);
-    assets[0] = WAVAX_V_TOKEN;
+    assets[0] = asset;
 
-    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(WAVAX_V_TOKEN_WHALE);
+    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
 
     IAaveIncentivesController(AaveV3Avalanche.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
       assets,
       type(uint256).max,
-      WAVAX_V_TOKEN_WHALE,
+      whale,
       REWARD_ASSET
     );
 
-    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(WAVAX_V_TOKEN_WHALE);
+    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
 
     uint256 deviationAccepted = 12_600 ether; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
@@ -130,11 +138,26 @@ contract EmissionTestAVAXLMAvax is BaseTest {
 
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](5);
-    emissionsPerAsset[0] = EmissionPerAsset({asset: WAVAX_V_TOKEN, emission: 2_000 ether});
-    emissionsPerAsset[1] = EmissionPerAsset({asset: BTCb_A_TOKEN, emission: 4_000 ether});
-    emissionsPerAsset[2] = EmissionPerAsset({asset: sAVAX_A_TOKEN, emission: 600 ether});
-    emissionsPerAsset[3] = EmissionPerAsset({asset: USDt_A_TOKEN, emission: 2_000 ether});
-    emissionsPerAsset[4] = EmissionPerAsset({asset: USDC_A_TOKEN, emission: 4_000 ether});
+    emissionsPerAsset[0] = EmissionPerAsset({
+      asset: WAVAX_V_TOKEN,
+      emission: 2_000 ether 
+    });
+    emissionsPerAsset[1] = EmissionPerAsset({
+      asset: BTCb_A_TOKEN,
+      emission: 4_000 ether 
+    });
+    emissionsPerAsset[2] = EmissionPerAsset({
+      asset: sAVAX_A_TOKEN,
+      emission: 600 ether 
+    });
+    emissionsPerAsset[3] = EmissionPerAsset({
+      asset: USDt_A_TOKEN,
+      emission: 2_000 ether 
+    });
+    emissionsPerAsset[4] = EmissionPerAsset({
+      asset: USDC_A_TOKEN,
+      emission: 4_000 ether 
+    });
 
     uint256 totalDistribution;
     for (uint256 i = 0; i < emissionsPerAsset.length; i++) {

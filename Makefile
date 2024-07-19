@@ -14,13 +14,8 @@ test-contract :; forge test --match-contract ${filter} -vv
 test-sd-rewards :; forge test -vvv --match-contract EmissionTestSDPolygon
 test-stmatic-rewards :; forge test -vvv --match-contract EmissionTestSTMATICPolygon
 test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestEthXMainnet
-test-BTCb-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestBTCbAvax
-test-wAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestwAVAXAvax
-test-USDC-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDCAvax
-test-sAVAX-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestsAVAXAvax
-test-USDT-Avax-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestUSDTAvax
-test-Avax-LM-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestAVAXLMAvax
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
+test-Avax-LM-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestAVAXLMAvax
 
 # scripts
 deploy-sd-transfer-strategy :;  forge script scripts/RewardsConfigHelpers.s.sol:SDDeployTransferStrategy --rpc-url polygon --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify -vvvv
