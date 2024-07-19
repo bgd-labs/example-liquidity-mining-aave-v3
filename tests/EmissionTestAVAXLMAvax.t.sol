@@ -77,11 +77,11 @@ contract EmissionTestAVAXLMAvax is BaseTest {
     IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION);
     vm.stopPrank();
 
-    _testClaimRewardsForWhale(WAVAX_V_TOKEN_WHALE, WAVAX_V_TOKEN, 2_000 ether);
-    _testClaimRewardsForWhale(BTCb_A_Token_WHALE, BTCb_A_TOKEN, 4_000 ether);
-    _testClaimRewardsForWhale(sAVAX_A_TOKEN_WHALE, sAVAX_A_TOKEN, 600 ether);
-    _testClaimRewardsForWhale(USDt_A_TOKEN_WHALE, USDt_A_TOKEN, 2_000 ether);
-    _testClaimRewardsForWhale(USDC_A_TOKEN_WHALE, USDC_A_TOKEN, 4_000 ether);
+    _testClaimRewardsForWhale(WAVAX_V_TOKEN_WHALE, WAVAX_V_TOKEN, 698 ether);
+    _testClaimRewardsForWhale(BTCb_A_Token_WHALE, BTCb_A_TOKEN, 909 ether);
+    _testClaimRewardsForWhale(sAVAX_A_TOKEN_WHALE, sAVAX_A_TOKEN, 46 ether);
+    _testClaimRewardsForWhale(USDt_A_TOKEN_WHALE, USDt_A_TOKEN, 892 ether);
+    _testClaimRewardsForWhale(USDC_A_TOKEN_WHALE, USDC_A_TOKEN, 120 ether);
   }
 
   function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
