@@ -72,7 +72,7 @@ contract EmissionTestETHLMETH is BaseTest {
     // IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION); 
     // vm.stopPrank();
 
-    _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 55 ether);
+    _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.1 ether);
     
   }
 
