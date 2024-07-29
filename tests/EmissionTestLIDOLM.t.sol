@@ -35,12 +35,13 @@ contract EmissionTestETHLMETH is BaseTest {
 
   uint256 constant TOTAL_DISTRIBUTION = 55 ether; // 55 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 14 days;
-
-  address wETHLIDO_WHALE = 0xcA518c4DB97ECCe85cC82DE3C2B93D8f8b536ca5; // TODO: change this when market is live
-  address WETH_A_TOKEN_WHALE = 0xD48573cDA0fed7144f2455c5270FFa16Be389d04;// TODO: change this when ready
+  
+  // Not needed as ACI is first LP in market
+  // address wETHLIDO_WHALE = 0xac140648435d03f784879cd789130F22Ef588Fcd;
+  address WETH_A_TOKEN_WHALE = 0xac140648435d03f784879cd789130F22Ef588Fcd;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('Ethereum'), 48116302); // change this when ready
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20412352); // change this when ready
   }
 
   function test_activation() public {
@@ -65,15 +66,18 @@ contract EmissionTestETHLMETH is BaseTest {
 
     vm.stopPrank();
 
-    vm.startPrank(wETHLIDO_WHALE);
-    IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION);
-    vm.stopPrank();
+    // Not needed for this LM as ACI is first provider in this instance
+
+    // vm.startPrank(wETHLIDO_WHALE);
+    // IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION); 
+    // vm.stopPrank();
 
     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 55 ether);
     
   }
 
   function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
+    
     vm.startPrank(whale);
 
     vm.warp(block.timestamp + 14 days);

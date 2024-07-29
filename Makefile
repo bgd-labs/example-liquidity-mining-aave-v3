@@ -16,7 +16,7 @@ test-stmatic-rewards :; forge test -vvv --match-contract EmissionTestSTMATICPoly
 test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestEthXMainnet
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 test-Avax-LM-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestAVAXLMAvax
-test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestETHLMETH
+test-lido-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestETHLMETH
 
 # scripts
 deploy-sd-transfer-strategy :;  forge script scripts/RewardsConfigHelpers.s.sol:SDDeployTransferStrategy --rpc-url polygon --broadcast --legacy --ledger --mnemonic-indexes ${MNEMONIC_INDEX} --sender ${LEDGER_SENDER} --verify -vvvv
