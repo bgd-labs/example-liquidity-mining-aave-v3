@@ -38,7 +38,7 @@ contract EmissionTestETHLMETH is BaseTest {
   
   // Not needed as ACI is first LP in market
   // address wETHLIDO_WHALE = 0xac140648435d03f784879cd789130F22Ef588Fcd;
-  address WETH_A_TOKEN_WHALE = 0xac140648435d03f784879cd789130F22Ef588Fcd;
+  address WETH_A_TOKEN_WHALE = 0x464C71f6c2F760DdA6093dCB91C24c39e5d6e18c; // collector
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), 20412352); // change this when ready
