@@ -104,7 +104,7 @@ function test_extendDistributionEnd() public {
     vm.stopPrank();
 
     // Test claiming rewards after extension
-    vm.warp(block.timestamp + 28 days); // 14 days initial + 14 days extension
+    vm.warp(block.timestamp + 14 days); // 14 days initial
 
     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.2 ether);
 }
