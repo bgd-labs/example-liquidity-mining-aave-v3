@@ -41,7 +41,7 @@ contract EmissionTestETHLMETH is BaseTest {
   address WETH_A_TOKEN_WHALE = 0x464C71f6c2F760DdA6093dCB91C24c39e5d6e18c; // collector
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20412352); // change this when ready
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20512388); // change this when ready
   }
 
   function test_activation() public {
@@ -73,8 +73,41 @@ contract EmissionTestETHLMETH is BaseTest {
     // vm.stopPrank();
 
     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.1 ether);
-    
   }
+
+function test_extendDistributionEnd() public {
+    // Initial setup
+    test_activation();
+
+    // Calculate new distribution end (14 days after the initial end)
+    uint32 newDistributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION + 14 days);
+
+    vm.startPrank(EMISSION_ADMIN);
+
+    // Call setDistributionEnd with single values instead of arrays
+    IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setDistributionEnd(
+        wETHLIDO_A_Token,
+        REWARD_ASSET,
+        newDistributionEnd
+    );
+
+    emit log_named_bytes(
+        'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
+        abi.encodeWithSelector(
+            IEmissionManager.setDistributionEnd.selector,
+            wETHLIDO_A_Token,
+            REWARD_ASSET,
+            newDistributionEnd
+        )
+    );
+
+    vm.stopPrank();
+
+    // Test claiming rewards after extension
+    vm.warp(block.timestamp + 28 days); // 14 days initial + 14 days extension
+
+    _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.2 ether);
+}
 
   function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
     
