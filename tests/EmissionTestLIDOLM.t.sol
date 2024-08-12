@@ -80,7 +80,7 @@ function test_extendDistributionEnd() public {
     test_activation();
 
     // Calculate new distribution end (14 days after the initial end)
-    uint32 newDistributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION + 14 days);
+    uint32 newDistributionEnd = uint32(block.timestamp + 14 days);
 
     vm.startPrank(EMISSION_ADMIN);
 
