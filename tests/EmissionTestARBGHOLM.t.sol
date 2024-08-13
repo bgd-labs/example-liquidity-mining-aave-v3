@@ -70,8 +70,9 @@ contract EmissionTestARBGHOLMETH is BaseTest {
     IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION);
     vm.stopPrank();
 
-    _testClaimRewardsForWhale(GHO_A_TOKEN_WHALE, ARB, 2_600 ether);
+    _testClaimRewardsForWhale(GHO_A_TOKEN_WHALE, ArbGHO_A_Token, 2_600 ether);
   }
+
   // Not needed for initial LM
 
   // function test_extendDistributionEnd() public {
@@ -133,8 +134,8 @@ contract EmissionTestARBGHOLMETH is BaseTest {
 
     uint256 deviationAccepted = expectedReward; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
-      balanceBefore,
       balanceAfter,
+      balanceBefore + expectedReward,
       deviationAccepted,
       'Invalid delta on claimed rewards'
     );
@@ -166,7 +167,7 @@ contract EmissionTestARBGHOLMETH is BaseTest {
 
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
-    emissionsPerAsset[0] = EmissionPerAsset({asset: ARB, emission: 5200 ether});
+    emissionsPerAsset[0] = EmissionPerAsset({asset: ArbGHO_A_Token, emission: 5200 ether});
 
     uint256 totalDistribution;
     for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
