@@ -16,9 +16,8 @@ contract EmissionTestETHLMETH is BaseTest {
   // E.g. With an emission of 10_000 MATICX tokens during 1 month, an emission of 50% for variableDebtPolWMATIC would be
   // 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_592_000 = ~ 0.0003858 * 1e18 MATICX per second
 
-  address constant wETHLIDO_A_Token = 0xfA1fDbBD71B0aA16162D76914d69cD8CB3Ef92da;// TODO: hardcoded for now will use lib when address book is updated
+  address constant wETHLIDO_A_Token = 0xfA1fDbBD71B0aA16162D76914d69cD8CB3Ef92da; // TODO: hardcoded for now will use lib when address book is updated
   address constant wETH_ORACLE = AaveV3EthereumAssets.WETH_ORACLE;
-
 
   struct EmissionPerAsset {
     address asset;
@@ -35,7 +34,7 @@ contract EmissionTestETHLMETH is BaseTest {
 
   uint256 constant TOTAL_DISTRIBUTION = 55 ether; // 55 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 14 days;
-  
+
   // Not needed as ACI is first LP in market
   // address wETHLIDO_WHALE = 0xac140648435d03f784879cd789130F22Ef588Fcd;
   address WETH_A_TOKEN_WHALE = 0x464C71f6c2F760DdA6093dCB91C24c39e5d6e18c; // collector
@@ -69,13 +68,13 @@ contract EmissionTestETHLMETH is BaseTest {
     // Not needed for this LM as ACI is first provider in this instance
 
     // vm.startPrank(wETHLIDO_WHALE);
-    // IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION); 
+    // IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION);
     // vm.stopPrank();
 
     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.1 ether);
   }
 
-function test_extendDistributionEnd() public {
+  function test_extendDistributionEnd() public {
     // Initial setup
     test_activation();
 
@@ -86,19 +85,19 @@ function test_extendDistributionEnd() public {
 
     // Call setDistributionEnd with single values instead of arrays
     IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setDistributionEnd(
-        wETHLIDO_A_Token,
-        REWARD_ASSET,
-        newDistributionEnd
+      wETHLIDO_A_Token,
+      REWARD_ASSET,
+      newDistributionEnd
     );
 
     emit log_named_bytes(
-        'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
-        abi.encodeWithSelector(
-            IEmissionManager.setDistributionEnd.selector,
-            wETHLIDO_A_Token,
-            REWARD_ASSET,
-            newDistributionEnd
-        )
+      'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
+      abi.encodeWithSelector(
+        IEmissionManager.setDistributionEnd.selector,
+        wETHLIDO_A_Token,
+        REWARD_ASSET,
+        newDistributionEnd
+      )
     );
 
     vm.stopPrank();
@@ -107,10 +106,13 @@ function test_extendDistributionEnd() public {
     vm.warp(block.timestamp + 14 days); // 14 days initial
 
     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.2 ether);
-}
+  }
 
-  function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
-    
+  function _testClaimRewardsForWhale(
+    address whale,
+    address asset,
+    uint256 expectedReward
+  ) internal {
     vm.startPrank(whale);
 
     vm.warp(block.timestamp + 14 days);
