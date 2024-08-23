@@ -37,7 +37,7 @@ contract EmissionTestMATICXPolygon is BaseTest {
   address vWMATIC_WHALE = 0xe52F5349153b8eb3B89675AF45aC7502C4997E6A;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('polygon'), 39361970);
+    vm.createSelectFork(vm.rpcUrl('polygon'), 60952423);
   }
 
   function test_activation() public {

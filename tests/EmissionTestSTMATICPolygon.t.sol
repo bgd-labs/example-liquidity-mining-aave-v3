@@ -33,11 +33,11 @@ contract EmissionTestSTMATICPolygon is BaseTest {
   uint256 constant TOTAL_DISTRIBUTION = 60_000 ether; // 10'000 stMATIC/month, 6 months
   uint88 constant DURATION_DISTRIBUTION = 180 days;
 
-  address STMATIC_WHALE = 0xB975364Bf0368726075A80da76D1Bf260244a25D;
+  address STMATIC_WHALE = 0x667Ed8Cb7cf2B83FF9922a1357B104F9F11eE6f9;
   address vWMATIC_WHALE = 0xe52F5349153b8eb3B89675AF45aC7502C4997E6A;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('polygon'), 39361970);
+    vm.createSelectFork(vm.rpcUrl('polygon'), 60952532);
   }
 
   function test_activation() public {
