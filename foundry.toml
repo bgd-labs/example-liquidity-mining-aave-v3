@@ -9,6 +9,7 @@ evm_version = 'shanghai'
 
 [rpc_endpoints]
 mainnet = "${RPC_MAINNET}"
+base = "${RPC_BASE}"
 optimism = "${RPC_OPTIMISM}"
 avalanche = "${RPC_AVALANCHE}"
 polygon = "${RPC_POLYGON}"
@@ -18,6 +19,7 @@ harmony = "${RPC_HARMONY}"
 
 [etherscan]
 mainnet={key="${ETHERSCAN_API_KEY_MAINNET}",chainId=1}
+base={key="${ETHERSCAN_API_KEY_BASE}",chainId=8453}
 optimism={key="${ETHERSCAN_API_KEY_OPTIMISM}",chainId=10}
 avalanche={key="${ETHERSCAN_API_KEY_AVALANCHE}",chainId=43114}
 polygon={key="${ETHERSCAN_API_KEY_POLYGON}",chainId=137}
