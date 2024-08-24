@@ -34,7 +34,7 @@ contract EmissionTestUSDCBase is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x401bfC40e431fD7a340BDE4e416a08932Df40f25); // new deployed strategy
 
-  uint256 constant TOTAL_DISTRIBUTION = 30_000 * 10e6; // 30'000 USDC
+  uint256 constant TOTAL_DISTRIBUTION = 30_000 * 1e6; // 30'000 USDC
   uint88 constant DURATION_DISTRIBUTION = 15 days;
 
   address A_USDC_HOLDER = 0x687AC878bc93610366B705C385Cd0A0038493dbB;
@@ -88,7 +88,7 @@ contract EmissionTestUSDCBase is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(A_USDC_WHALE);
 
-    uint256 deviationAccepted = 30_000 * 10e6; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = 30_000 * 1e6; // Approx estimated rewards with current emission in 1 month
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
