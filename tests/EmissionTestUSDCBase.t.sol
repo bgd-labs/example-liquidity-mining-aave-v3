@@ -41,7 +41,7 @@ contract EmissionTestUSDCBase is BaseTest {
   address A_USDC_WHALE = 0xe637Bc15bf65a0033367B27f89550e18Dc0E21A7;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('base'), 18850434);
+    vm.createSelectFork(vm.rpcUrl('base'), 18933887);
   }
 
   function test_activation() public {
