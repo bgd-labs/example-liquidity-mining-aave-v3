@@ -16,7 +16,7 @@ This repository contains:
 
 2. Do an ERC-20 approve of the total rewards to be distributed to the Transfer Strategy contract, this is contract by Aave which helps to pull the Liquidity Mining rewards from the Rewards Vault address to distribute to the user. To know more about how Transfer Strategy contract works you can check [here](https://github.com/aave/aave-v3-periphery/blob/master/docs/rewards/rewards-transfer-strategies.md).
 
-   _Note: The Emission Admin is an address which has access to manage and configure the reward emissions by calling the Emission Manager contract and the    general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
+   _Note: The Emission Admin is an address which has access to manage and configure the reward emissions by calling the Emission Manager contract and the general type of Transfer Strategy contract used for Liquidity Mining is of type PullRewardsStrategy._
 
 3. Finally we need to configure the Liquidity Mining emissions on the Emission Manager contract from the Emission Admin by calling the `configureAssets()` function which will take the array of the following struct to configure liquidity mining for mulitple assets for the same reward or multiple assets for mutiple rewards.
 
@@ -108,23 +108,22 @@ Similarly you can also run the test via `forge test -vv` which will emit the sel
 - Why do we need to approve funds from the Rewards Vault to the Aave Transfer Strategy contract?
 
   This is needed so the Transfer Strategy contract can pull the rewards from the Rewards Vault to distribute it to the user when the user claims them.
-  
+
 - Can I reuse an already deployed transfer strategy?
-    
-    Yes, a transfer strategy could be reused if it has already been deployed for the given network (given that you want the rewards vault, rewards admin and the incentives controller to be the same).
-    
+  Yes, a transfer strategy could be reused if it has already been deployed for the given network (given that you want the rewards vault, rewards admin and the incentives controller to be the same).
 - If a transfer strategy does not exist, how do I create one?
 
-    The transfer strategy is an immutable contract which determines the logic of the rewards transfer. To create a new pull reward transfer strategy (most     common transfer strategy for liquidity mining) you could use the 
-[PullRewardsTransferStrategy.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol) contract with the following constructor params:
+      The transfer strategy is an immutable contract which determines the logic of the rewards transfer. To create a new pull reward transfer strategy (most     common transfer strategy for liquidity mining) you could use the
 
-    - `incentivesController`: address of the incentives controller
-    - `rewardsAdmin`: address of the incentives controller for access control
-    - `rewardsVault`: address of the rewards vault containing the funds for the Liquidity Mining program.
+  [PullRewardsTransferStrategy.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol) contract with the following constructor params:
 
-    Example to deploy a transfer strategy can be found [here](./scripts/RewardsConfigHelpers.s.sol).
-    
-    _Note: All transfer strategy should inherit from the base contract [TransferStrategyBase.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/TransferStrategyBase.sol) and you could also define your own custom transfer                   strategy even with NFT’s as rewards, given that you inherit from the base contract._
+      - `incentivesController`: address of the incentives controller
+      - `rewardsAdmin`: address of the incentives controller for access control
+      - `rewardsVault`: address of the rewards vault containing the funds for the Liquidity Mining program.
+
+      Example to deploy a transfer strategy can be found [here](./scripts/RewardsConfigHelpers.s.sol).
+
+      _Note: All transfer strategy should inherit from the base contract [TransferStrategyBase.sol](https://github.com/aave/aave-v3-periphery/blob/master/contracts/rewards/transfer-strategies/TransferStrategyBase.sol) and you could also define your own custom transfer                   strategy even with NFT’s as rewards, given that you inherit from the base contract._
 
 - Can we stop the liquidity mining program at any time?
 
@@ -135,7 +134,7 @@ Similarly you can also run the test via `forge test -vv` which will emit the sel
 - Can we change the amount of liquidty mining rewards?
 
   Yes, the liquidity mining rewards could be increased or decreased by the Emission Admin. To do so, please refer
-[here](https://github.com/bgd-labs/example-liquidity-mining-aave-v3/tree/feat/configure-emissions#how-to-configure-emissions-after-the-lm-program-has-been-created)
+  [here](https://github.com/bgd-labs/example-liquidity-mining-aave-v3/tree/feat/configure-emissions#how-to-configure-emissions-after-the-lm-program-has-been-created)
 
 ### Setup
 
