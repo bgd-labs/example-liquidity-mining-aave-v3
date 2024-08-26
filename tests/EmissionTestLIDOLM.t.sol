@@ -33,7 +33,7 @@ contract EmissionTestETHLMETH is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a); // new deployed strategy
 
-  uint256 constant TOTAL_DISTRIBUTION = 70 ether; // 55 awETH/14 Days
+  uint256 constant TOTAL_DISTRIBUTION = 80 ether; // 80 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 14 days;
   
   // Not needed as ACI is first LP in market
@@ -164,7 +164,7 @@ function test_extendDistributionEnd() public {
 
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
-    emissionsPerAsset[0] = EmissionPerAsset({asset: wETHLIDO_A_Token, emission: 70 ether});
+    emissionsPerAsset[0] = EmissionPerAsset({asset: wETHLIDO_A_Token, emission: 80 ether});
 
     uint256 totalDistribution;
     for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
