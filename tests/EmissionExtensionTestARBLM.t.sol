@@ -21,10 +21,6 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   address constant ARB = AaveV3ArbitrumAssets.ARB_UNDERLYING;
 
 
-  struct EmissionPerAsset {
-    address asset;
-    uint256 emission;
-  }
 
   struct NewEmissionPerAsset {
     address asset;
