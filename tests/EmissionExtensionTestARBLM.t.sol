@@ -47,7 +47,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(ARB_ORACLE);
 
   ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0xbe20E31e8fAf90568ca4D10E25efaD6da34EBC3A); // new deployed strategy
+    ITransferStrategyBase(0x991bf7661F1F2695ac8AEFc4F9a19718d6424dc0); // new deployed strategy
 
   uint256 constant TOTAL_DISTRIBUTION = 72_800 ether; // 80 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 15 days;
@@ -57,7 +57,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   address GHO_A_TOKEN_WHALE = 0xda39E48523770197EF3CbB70C1bf1cCCF9B4b1E7; 
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247240090); // change this when ready
+    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247245171); // change this when ready
   }
 
   function test_setNewEmissionPerSecond() public {
@@ -150,7 +150,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     
     vm.startPrank(whale);
 
-    vm.warp(block.timestamp + 14 days);
+    vm.warp(block.timestamp + 15 days);
 
     address[] memory assets = new address[](1);
     assets[0] = asset;
