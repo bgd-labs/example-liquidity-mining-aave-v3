@@ -140,29 +140,6 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     return uint32(value);
   }
 
-    vm.warp(block.timestamp + 15 days);
-
-    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
-
-    IAaveIncentivesController(AaveV3Arbitrum.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
-      assets,
-      type(uint256).max,
-      whale,
-      REWARD_ASSET
-    );
-
-    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
-
-    uint256 deviationAccepted = expectedReward; // Approx estimated rewards with current emission in 1 month
-    assertApproxEqAbs(
-      balanceBefore,
-      balanceAfter,
-      deviationAccepted,
-      'Invalid delta on claimed rewards'
-    );
-
-    vm.stopPrank();
-  }
 
 
   function _toUint88(uint256 value) internal pure returns (uint88) {
