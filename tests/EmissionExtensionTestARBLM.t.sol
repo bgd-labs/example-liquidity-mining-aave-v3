@@ -42,8 +42,6 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
 
   IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(ARB_ORACLE);
 
-  ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0x991bf7661F1F2695ac8AEFc4F9a19718d6424dc0); // new deployed strategy
 
   uint256 constant TOTAL_DISTRIBUTION = 72_800 ether; // 80 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 15 days;
