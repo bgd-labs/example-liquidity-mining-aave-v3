@@ -57,7 +57,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   address GHO_A_TOKEN_WHALE = 0xda39E48523770197EF3CbB70C1bf1cCCF9B4b1E7; 
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247238850); // change this when ready
+    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247240090); // change this when ready
   }
 
   function test_setNewEmissionPerSecond() public {
@@ -145,40 +145,6 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     require(value <= type(uint32).max, "SafeCast: value doesn't fit in 32 bits");
     return uint32(value);
   }
-
-// function test_extendDistributionEnd() public {
-//     // Initial setup
-//     // test_activation();
-
-//     // Calculate new distribution end (14 days after the initial end)
-//     uint32 newDistributionEnd = uint32(block.timestamp + 14 days);
-
-//     vm.startPrank(EMISSION_ADMIN);
-
-//     // Call setDistributionEnd with single values instead of arrays
-//     IEmissionManager(AaveV3Arbitrum.EMISSION_MANAGER).setDistributionEnd(
-//         GHO_A_TOKEN,
-//         REWARD_ASSET,
-//         newDistributionEnd
-//     );
-
-//     emit log_named_bytes(
-//         'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
-//         abi.encodeWithSelector(
-//             IEmissionManager.setDistributionEnd.selector,
-//             GHO_A_TOKEN,
-//             REWARD_ASSET,
-//             newDistributionEnd
-//         )
-//     );
-
-//     vm.stopPrank();
-
-//     // Test claiming rewards after extension
-//     vm.warp(block.timestamp + 14 days); // 14 days initial
-
-//     _testClaimRewardsForWhale(GHO_A_TOKEN_WHALE, GHO_A_TOKEN, 0.2 ether);
-// }
 
   function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
     
