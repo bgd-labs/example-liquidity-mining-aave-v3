@@ -9,7 +9,7 @@ import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregato
 import {BaseTest} from './utils/BaseTest.sol';
 import 'forge-std/console.sol';
 
-contract EmissionTestETHLMETH is BaseTest {
+contract EmissionExtensionTestETHLMETH is BaseTest {
   // @dev Used to simplify the definition of a program of emissions
   //  asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
   //  emission Total emission of a `reward` token during the whole distribution duration defined
@@ -25,8 +25,23 @@ contract EmissionTestETHLMETH is BaseTest {
     uint256 emission;
   }
 
+  struct NewEmissionPerAsset {
+    address asset;
+    address[] rewards;
+    uint88[] newEmissionsPerSecond;
+  }
+
+  struct NewDistributionEndPerAsset {
+    address asset;
+    address reward;
+    uint32 newDistributionEnd;
+  }
+
   address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // ACI
   address constant REWARD_ASSET = wETHLIDO_A_Token;
+
+  uint256 constant NEW_TOTAL_DISTRIBUTION = 80 ether;
+  uint88 constant NEW_DURATION_DISTRIBUTION_END = 14 days;
 
   IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(wETH_ORACLE);
 
@@ -44,70 +59,125 @@ contract EmissionTestETHLMETH is BaseTest {
     vm.createSelectFork(vm.rpcUrl('mainnet'), 20611541); // change this when ready
   }
 
-  function test_activation() public {
+  function test_setNewEmissionPerSecond() public {
+    NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
+
     vm.startPrank(EMISSION_ADMIN);
-    /// @dev IMPORTANT!!
-    /// The emissions admin should have REWARD_ASSET funds, and have approved the TOTAL_DISTRIBUTION
-    /// amount to the transfer strategy. If not, REWARDS WILL ACCRUE FINE AFTER `configureAssets()`, BUT THEY
-    /// WILL NOT BE CLAIMABLE UNTIL THERE IS FUNDS AND ALLOWANCE.
-    /// It is possible to approve less than TOTAL_DISTRIBUTION and doing it progressively over time as users
-    /// accrue more, but that is a decision of the emission's admin
-    IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
 
-    IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
-
+    // The emission admin can change the emission per second of the reward after the rewards have been configured.
+    // Here we change the initial emission per second to the new one.
+    IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setEmissionPerSecond(
+      newEmissionPerAsset.asset,
+      newEmissionPerAsset.rewards,
+      newEmissionPerAsset.newEmissionsPerSecond
+    );
     emit log_named_bytes(
-      'calldata to submit from Gnosis Safe',
+      'calldata to execute tx on EMISSION_MANAGER to set the new emission per second from the emissions admin (safe)',
       abi.encodeWithSelector(
-        IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).configureAssets.selector,
-        _getAssetConfigs()
+        IEmissionManager.setEmissionPerSecond.selector,
+        newEmissionPerAsset.asset,
+        newEmissionPerAsset.rewards,
+        newEmissionPerAsset.newEmissionsPerSecond
       )
     );
 
     vm.stopPrank();
 
-    // Not needed for this LM as ACI is first provider in this instance
+    vm.warp(block.timestamp + 14 days);
 
-    // vm.startPrank(wETHLIDO_WHALE);
-    // IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, TOTAL_DISTRIBUTION); 
-    // vm.stopPrank();
+    address[] memory assets = new address[](1);
+    assets[0] = wETHLIDO_A_Token;
 
-    _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.1 ether);
-  }
+    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(WETH_A_TOKEN_WHALE);
 
-function test_extendDistributionEnd() public {
-    // Initial setup
-    // test_activation();
+    vm.startPrank(WETH_A_TOKEN_WHALE);
 
-    // Calculate new distribution end (14 days after the initial end)
-    uint32 newDistributionEnd = uint32(block.timestamp + 14 days);
-
-    vm.startPrank(EMISSION_ADMIN);
-
-    // Call setDistributionEnd with single values instead of arrays
-    IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setDistributionEnd(
-        wETHLIDO_A_Token,
-        REWARD_ASSET,
-        newDistributionEnd
-    );
-
-    emit log_named_bytes(
-        'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
-        abi.encodeWithSelector(
-            IEmissionManager.setDistributionEnd.selector,
-            wETHLIDO_A_Token,
-            REWARD_ASSET,
-            newDistributionEnd
-        )
+    IAaveIncentivesController(AaveV3Ethereum.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
+      assets,
+      type(uint256).max,
+      WETH_A_TOKEN_WHALE,
+      REWARD_ASSET
     );
 
     vm.stopPrank();
 
-    // Test claiming rewards after extension
-    vm.warp(block.timestamp + 14 days); // 14 days initial
+    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(WETH_A_TOKEN_WHALE);
 
-    _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.2 ether);
-}
+    // Approx estimated rewards with current emission in 1 month, considering the new emissions per second set.
+    uint256 deviationAccepted = 80 ether;
+    assertApproxEqAbs(
+      balanceBefore,
+      balanceAfter,
+      deviationAccepted,
+      'Invalid delta on claimed rewards'
+    );
+  }
+
+  function _getNewEmissionPerSecond() internal pure returns (NewEmissionPerAsset memory) {
+    NewEmissionPerAsset memory newEmissionPerAsset;
+
+    address[] memory rewards = new address[](1);
+    rewards[0] = REWARD_ASSET;
+    uint88[] memory newEmissionsPerSecond = new uint88[](1);
+    newEmissionsPerSecond[0] = _toUint88(NEW_TOTAL_DISTRIBUTION / DURATION_DISTRIBUTION);
+
+    newEmissionPerAsset.asset = wETHLIDO_A_Token;
+    newEmissionPerAsset.rewards = rewards;
+    newEmissionPerAsset.newEmissionsPerSecond = newEmissionsPerSecond;
+
+    return newEmissionPerAsset;
+  }
+
+  function _getNewDistributionEnd() internal view returns (NewDistributionEndPerAsset memory) {
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset;
+
+    newDistributionEndPerAsset.asset = wETHLIDO_A_Token;
+    newDistributionEndPerAsset.reward = REWARD_ASSET;
+    newDistributionEndPerAsset.newDistributionEnd = _toUint32(
+      block.timestamp + NEW_DURATION_DISTRIBUTION_END
+    );
+
+    return newDistributionEndPerAsset;
+  }
+
+  function _toUint32(uint256 value) internal pure returns (uint32) {
+    require(value <= type(uint32).max, "SafeCast: value doesn't fit in 32 bits");
+    return uint32(value);
+  }
+
+// function test_extendDistributionEnd() public {
+//     // Initial setup
+//     // test_activation();
+
+//     // Calculate new distribution end (14 days after the initial end)
+//     uint32 newDistributionEnd = uint32(block.timestamp + 14 days);
+
+//     vm.startPrank(EMISSION_ADMIN);
+
+//     // Call setDistributionEnd with single values instead of arrays
+//     IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setDistributionEnd(
+//         wETHLIDO_A_Token,
+//         REWARD_ASSET,
+//         newDistributionEnd
+//     );
+
+//     emit log_named_bytes(
+//         'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
+//         abi.encodeWithSelector(
+//             IEmissionManager.setDistributionEnd.selector,
+//             wETHLIDO_A_Token,
+//             REWARD_ASSET,
+//             newDistributionEnd
+//         )
+//     );
+
+//     vm.stopPrank();
+
+//     // Test claiming rewards after extension
+//     vm.warp(block.timestamp + 14 days); // 14 days initial
+
+//     _testClaimRewardsForWhale(WETH_A_TOKEN_WHALE, wETHLIDO_A_Token, 0.2 ether);
+// }
 
   function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
     

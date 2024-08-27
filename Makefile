@@ -17,8 +17,9 @@ test-Ethx-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract Em
 test-maticx-rewards :; forge test -vvv --match-contract EmissionTestMATICXPolygon
 test-Avax-LM-rewards :; FOUNDRY_PROFILE=avax forge test -vvv --match-contract EmissionTestAVAXLMAvax
 test-lido-rewards :; FOUNDRY_PROFILE=mainnet forge test -vvv --match-contract EmissionTestETHLMETH
-test-arbGHO-rewards :; FOUNDRY_PROFILE=arbitrum forge test -vvv --match-contract EmissionTestARBGHOLMETH
+test-arbGHO-rewards :; FOUNDRY_PROFILE=arbitrum forge test -vvv --match-contract EmissionExtensionTestARBLMGHO
 test-base-rewards :; FOUNDRY_PROFILE=base forge test -vvv --match-contract EmissionTestUSDCBase
+test-base-extension :; FOUNDRY_PROFILE=base forge test -vvv --match-contract EmissionTestExtendLIDO
 
 # scripts
 
