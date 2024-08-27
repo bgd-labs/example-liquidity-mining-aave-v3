@@ -177,40 +177,6 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     vm.stopPrank();
   }
 
-  function _getAssetConfigs() internal view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
-    uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
-
-    EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
-
-    RewardsDataTypes.RewardsConfigInput[]
-      memory configs = new RewardsDataTypes.RewardsConfigInput[](emissionsPerAsset.length);
-    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
-      configs[i] = RewardsDataTypes.RewardsConfigInput({
-        emissionPerSecond: _toUint88(emissionsPerAsset[i].emission / DURATION_DISTRIBUTION),
-        totalSupply: 0, // IMPORTANT this will not be taken into account by the contracts, so 0 is fine
-        distributionEnd: distributionEnd,
-        asset: emissionsPerAsset[i].asset,
-        reward: REWARD_ASSET,
-        transferStrategy: TRANSFER_STRATEGY,
-        rewardOracle: REWARD_ORACLE
-      });
-    }
-
-    return configs;
-  }
-
-  function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
-    EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
-    emissionsPerAsset[0] = EmissionPerAsset({asset: GHO_A_TOKEN, emission: 80 ether});
-
-    uint256 totalDistribution;
-    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
-      totalDistribution += emissionsPerAsset[i].emission;
-    }
-    require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
-
-    return emissionsPerAsset;
-  }
 
   function _toUint88(uint256 value) internal pure returns (uint88) {
     require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
