@@ -37,13 +37,13 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // ACI
   address constant REWARD_ASSET = ARB;
 
-  uint256 constant NEW_TOTAL_DISTRIBUTION = 72_800 ether;
+  uint256 constant NEW_TOTAL_DISTRIBUTION = 10_400 ether;
   uint88 constant NEW_DURATION_DISTRIBUTION_END = 15 days;
 
   IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(ARB_ORACLE);
 
 
-  uint256 constant TOTAL_DISTRIBUTION = 72_800 ether; // 80 awETH/14 Days
+  uint256 constant TOTAL_DISTRIBUTION = 10_400 ether; // 80 awETH/14 Days
   uint88 constant DURATION_DISTRIBUTION = 15 days;
   
   // Not needed as ACI is first LP in market
