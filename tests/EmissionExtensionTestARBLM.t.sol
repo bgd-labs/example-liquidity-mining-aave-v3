@@ -150,10 +150,19 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     
     vm.startPrank(whale);
 
-    vm.warp(block.timestamp + 15 days);
+    // claim before timewarp to grab all pending previous rewards
 
     address[] memory assets = new address[](1);
     assets[0] = asset;
+
+    IAaveIncentivesController(AaveV3Arbitrum.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
+      assets,
+      type(uint256).max,
+      whale,
+      REWARD_ASSET
+    );
+
+    vm.warp(block.timestamp + 15 days);
 
     uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
 
