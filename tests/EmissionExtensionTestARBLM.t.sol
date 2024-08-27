@@ -76,12 +76,45 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
       )
     );
 
-    vm.stopPrank();
+    // Calculate new distribution end (14 days after the initial end)
+    uint32 newDistributionEnd = uint32(block.timestamp + 15 days);
 
-    vm.warp(block.timestamp + 15 days);
+    vm.startPrank(EMISSION_ADMIN);
+
+    // Call setDistributionEnd with single values instead of arrays
+    IEmissionManager(AaveV3Arbitrum.EMISSION_MANAGER).setDistributionEnd(
+        GHO_A_TOKEN,
+        REWARD_ASSET,
+        newDistributionEnd
+    );
+
+    emit log_named_bytes(
+        'calldata to execute tx on EMISSION_MANAGER to extend the distribution end from the emissions admin (safe)',
+        abi.encodeWithSelector(
+            IEmissionManager.setDistributionEnd.selector,
+            GHO_A_TOKEN,
+            REWARD_ASSET,
+            newDistributionEnd
+        )
+    );
+
+    vm.stopPrank();
 
     address[] memory assets = new address[](1);
     assets[0] = GHO_A_TOKEN;
+
+    // claim pending rewards
+
+    IAaveIncentivesController(AaveV3Arbitrum.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
+      assets,
+      type(uint256).max,
+      GHO_A_TOKEN_WHALE,
+      REWARD_ASSET
+    );
+
+    vm.warp(block.timestamp + 15 days);
+
+    
 
     uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(GHO_A_TOKEN_WHALE);
 
@@ -99,7 +132,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(GHO_A_TOKEN_WHALE);
 
     // Approx estimated rewards with current emission in 1 month, considering the new emissions per second set.
-    uint256 deviationAccepted = 13_470 ether;
+    uint256 deviationAccepted = 14_600 ether;
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
