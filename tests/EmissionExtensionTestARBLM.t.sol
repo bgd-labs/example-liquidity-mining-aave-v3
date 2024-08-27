@@ -51,7 +51,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
   address GHO_A_TOKEN_WHALE = 0xda39E48523770197EF3CbB70C1bf1cCCF9B4b1E7; 
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247245171); // change this when ready
+    vm.createSelectFork(vm.rpcUrl('arbitrum'), 247253747); // change this when ready
   }
 
   function test_setNewEmissionPerSecond() public {
