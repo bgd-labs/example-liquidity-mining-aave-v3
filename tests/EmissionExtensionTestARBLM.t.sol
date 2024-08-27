@@ -105,7 +105,7 @@ contract EmissionExtensionTestARBLMGHO is BaseTest {
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(GHO_A_TOKEN_WHALE);
 
     // Approx estimated rewards with current emission in 1 month, considering the new emissions per second set.
-    uint256 deviationAccepted = 72_800 ether;
+    uint256 deviationAccepted = 13_470 ether;
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
