@@ -21,6 +21,8 @@ abstract contract LMSetupBaseTest is Test {
     RewardsDataTypes.RewardsConfigInput[] memory rewardConfigs = _getAssetConfigs();
 
     for (uint i = 0; i < rewardConfigs.length; i++) {
+      assertGt(rewardConfigs[i].distributionEnd, block.timestamp);
+
       _validateIndexDoesNotOverflow(rewardConfigs[i]);
       _validateIndexNotZero(rewardConfigs[i]);
     }
