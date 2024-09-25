@@ -5,29 +5,9 @@ import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
 import {IAaveIncentivesController} from '../src/interfaces/IAaveIncentivesController.sol';
 import {IEmissionManager} from '../src/interfaces/IEmissionManager.sol';
-import {BaseTest} from './utils/BaseTest.sol';
+import {LMUpdateBaseTest} from './utils/LMUpdateBaseTest.sol';
 
-contract EmissionConfigurationTestMATICXPolygon is BaseTest {
-  /// @dev Used to simplify the configuration of new emissions per second after the emissions program has been created
-  /// @param asset The asset for which new emissions per second needs to be configured
-  /// @param rewards The rewards for which new emissions per second needs to be configured
-  /// @param newEmissionsPerSecond The new emissions per second of the `reward` tokens
-  struct NewEmissionPerAsset {
-    address asset;
-    address[] rewards;
-    uint88[] newEmissionsPerSecond;
-  }
-
-  /// @dev Used to simplify the configuration of new distribution end after the emissions program has been created
-  /// @param asset The asset for which new distribution end needs to be configured
-  /// @param reward The reward for which new distribution end needs to be configured
-  /// @param newDistributionEnd The new distribution end of the asset and reward
-  struct NewDistributionEndPerAsset {
-    address asset;
-    address reward;
-    uint32 newDistributionEnd;
-  }
-
+contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
   address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
   address constant REWARD_ASSET = AaveV3PolygonAssets.MaticX_UNDERLYING;
 
@@ -148,7 +128,7 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     );
   }
 
-  function _getNewEmissionPerSecond() internal pure returns (NewEmissionPerAsset memory) {
+  function _getNewEmissionPerSecond() internal override pure returns (NewEmissionPerAsset memory) {
     NewEmissionPerAsset memory newEmissionPerAsset;
 
     address[] memory rewards = new address[](1);
@@ -163,7 +143,7 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     return newEmissionPerAsset;
   }
 
-  function _getNewDistributionEnd() internal view returns (NewDistributionEndPerAsset memory) {
+  function _getNewDistributionEnd() internal override view returns (NewDistributionEndPerAsset memory) {
     NewDistributionEndPerAsset memory newDistributionEndPerAsset;
 
     newDistributionEndPerAsset.asset = AaveV3PolygonAssets.WMATIC_V_TOKEN;
@@ -173,15 +153,5 @@ contract EmissionConfigurationTestMATICXPolygon is BaseTest {
     );
 
     return newDistributionEndPerAsset;
-  }
-
-  function _toUint88(uint256 value) internal pure returns (uint88) {
-    require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
-    return uint88(value);
-  }
-
-  function _toUint32(uint256 value) internal pure returns (uint32) {
-    require(value <= type(uint32).max, "SafeCast: value doesn't fit in 32 bits");
-    return uint32(value);
   }
 }

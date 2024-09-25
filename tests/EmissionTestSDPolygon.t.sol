@@ -1,25 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
 import {IAaveIncentivesController} from '../src/interfaces/IAaveIncentivesController.sol';
-
 import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../src/interfaces/IEmissionManager.sol';
-import {BaseTest} from './utils/BaseTest.sol';
+import {LMSetupBaseTest} from './utils/LMSetupBaseTest.sol';
 
-contract EmissionTestSDPolygon is BaseTest {
-  /// @dev Used to simplify the definition of a program of emissions
-  /// @param asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
-  /// @param emission Total emission of a `reward` token during the whole distribution duration defined
-  /// E.g. With an emission of 13_520 SD tokens during 1 month, an emission of 50% for aPolMATICX would be
-  /// 13_520 * 1e18 * 50% / 30 days in seconds = 1_352 * 1e18 / 2_592_000 = ~ 0.000521604 * 1e18 SD per second
-  struct EmissionPerAsset {
-    address asset;
-    uint256 emission;
-  }
-
+contract EmissionTestSDPolygon is LMSetupBaseTest {
   address constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a; // Stader Safe
   address constant REWARD_ASSET = 0x1d734A02eF1e1f5886e66b0673b71Af5B53ffA94; // SD token
   IEACAggregatorProxy constant REWARD_ORACLE =
@@ -96,7 +84,7 @@ contract EmissionTestSDPolygon is BaseTest {
     vm.stopPrank();
   }
 
-  function _getAssetConfigs() internal view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
+  function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
     uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
 
     EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
@@ -118,7 +106,7 @@ contract EmissionTestSDPolygon is BaseTest {
     return configs;
   }
 
-  function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
+  function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
     emissionsPerAsset[0] = EmissionPerAsset({
       asset: AaveV3PolygonAssets.MaticX_A_TOKEN,
@@ -132,10 +120,5 @@ contract EmissionTestSDPolygon is BaseTest {
     require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
 
     return emissionsPerAsset;
-  }
-
-  function _toUint88(uint256 value) internal pure returns (uint88) {
-    require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
-    return uint88(value);
   }
 }
