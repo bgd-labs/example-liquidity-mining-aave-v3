@@ -50,6 +50,11 @@ interface ITransferStrategyBase {
   function getRewardsAdmin() external view returns (address);
 
   /**
+   * @return Returns the address of the Rewards vault
+   */
+  function getRewardsVault() external view returns (address);
+
+  /**
    * @dev Perform an emergency token withdrawal only callable by the Rewards admin
    * @param token Address of the token to withdraw funds from this contract
    * @param to Address of the recipient of the withdrawal
