@@ -8,36 +8,28 @@ import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregato
 import {LMSetupBaseTest} from './utils/LMSetupBaseTest.sol';
 
 contract EmissionTestSDPolygon is LMSetupBaseTest {
-  address constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a; // Stader Safe
-  address constant REWARD_ASSET = 0x1d734A02eF1e1f5886e66b0673b71Af5B53ffA94; // SD token
-  IEACAggregatorProxy constant REWARD_ORACLE =
-    IEACAggregatorProxy(0x30E9671a8092429A358a4E31d41381aa0D10b0a0); // SD/USD
+  address public constant override REWARD_ASSET = 0x1d734A02eF1e1f5886e66b0673b71Af5B53ffA94; // SD token
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
+  uint256 public constant override TOTAL_DISTRIBUTION = 81_120 ether; // 13'520 SD/month, 6 months
+  /// @dev already deployed and configured for the both the SD asset and the 0x51358004cFe135E64453d7F6a0dC433CAba09A2a EMISSION_ADMIN
+  ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0xC51e6E38d406F98049622Ca54a6096a23826B426);
 
-  /// @dev already deployed and configured for the both the SD asset and the 0x51358004cFe135E64453d7F6a0dC433CAba09A2a
-  /// EMISSION_ADMIN
-  ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0xC51e6E38d406F98049622Ca54a6096a23826B426);
-
-  uint256 constant TOTAL_DISTRIBUTION = 81_120 ether; // 13'520 SD/month, 6 months
   uint88 constant DURATION_DISTRIBUTION = 180 days;
-
-  address SD_WHALE = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
-  address aPolMATICX_WHALE = 0x807c561657E4Bf582Eee6C34046B0507Fc359960;
+  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(0x30E9671a8092429A358a4E31d41381aa0D10b0a0); // SD/USD
+  address constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a; // Stader Safe
+  address constant SD_WHALE = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
+  address constant aPolMATICX_WHALE = 0x807c561657E4Bf582Eee6C34046B0507Fc359960;
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('polygon'), 39010930);
+
+    deal(REWARD_ASSET, EMISSION_ADMIN, TOTAL_DISTRIBUTION);
+    vm.prank(EMISSION_ADMIN);
+    IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
   }
 
   function test_activation() public {
-    vm.startPrank(EMISSION_ADMIN);
-    /// @dev IMPORTANT!!
-    /// The emissions admin should have REWARD_ASSET funds, and have approved the TOTAL_DISTRIBUTION
-    /// amount to the transfer strategy. If not, REWARDS WILL ACCRUE FINE AFTER `configureAssets()`, BUT THEY
-    /// WILL NOT BE CLAIMABLE UNTIL THERE IS FUNDS AND ALLOWANCE.
-    /// It is possible to approve less than TOTAL_DISTRIBUTION and doing it progressively over time as users
-    /// accrue more, but that is a decision of the emission's admin
-    IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
-
+    vm.prank(EMISSION_ADMIN);
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
 
     emit log_named_bytes(
@@ -48,40 +40,15 @@ contract EmissionTestSDPolygon is LMSetupBaseTest {
       )
     );
 
-    vm.stopPrank();
-
-    vm.startPrank(SD_WHALE);
+    vm.prank(SD_WHALE);
     IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, 50_000 ether);
 
-    vm.stopPrank();
-
-    vm.startPrank(0x807c561657E4Bf582Eee6C34046B0507Fc359960);
-
-    vm.warp(block.timestamp + 2_592_000);
-
-    address[] memory assets = new address[](1);
-    assets[0] = 0x80cA0d8C38d2e2BcbaB66aA1648Bd1C7160500FE;
-
-    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(aPolMATICX_WHALE);
-
-    IAaveIncentivesController(AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
-      assets,
-      type(uint256).max,
+    _testClaimRewardsForWhale(
       aPolMATICX_WHALE,
-      REWARD_ASSET
+      AaveV3PolygonAssets.MaticX_A_TOKEN,
+      DURATION_DISTRIBUTION,
+      13_093 ether
     );
-
-    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(aPolMATICX_WHALE);
-
-    uint256 deviationAccepted = 2200 ether; // Approx estimated rewards with current emission in 1 month
-    assertApproxEqAbs(
-      balanceBefore,
-      balanceAfter,
-      deviationAccepted,
-      'Invalid delta on claimed rewards'
-    );
-
-    vm.stopPrank();
   }
 
   function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {

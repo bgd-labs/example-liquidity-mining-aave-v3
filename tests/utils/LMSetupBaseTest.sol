@@ -1,22 +1,12 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {IScaledBalanceToken} from 'aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol';
-import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../../src/interfaces/IEmissionManager.sol';
+import {ITransferStrategyBase, RewardsDataTypes} from '../../src/interfaces/IEmissionManager.sol';
+import {LMBaseTest} from '../utils/LMBaseTest.sol';
 
-abstract contract LMSetupBaseTest is Test {
-  /// @dev Used to simplify the definition of a program of emissions
-  /// @param asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
-  /// @param emission Total emission of a `reward` token during the whole distribution duration defined
-  /// E.g. With an emission of 10_000 MATICX tokens during 1 month, an emission of 50% for variableDebtPolWMATIC would be
-  /// 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_592_000 = ~ 0.0003858 * 1e18 MATICX per second
-  struct EmissionPerAsset {
-    address asset;
-    uint256 emission;
-  }
-
+abstract contract LMSetupBaseTest is LMBaseTest {
   function test_validateLMParams() public {
     RewardsDataTypes.RewardsConfigInput[] memory rewardConfigs = _getAssetConfigs();
 
@@ -28,9 +18,19 @@ abstract contract LMSetupBaseTest is Test {
     }
   }
 
-  function _getEmissionsPerAsset() virtual internal pure returns (EmissionPerAsset[] memory);
+  function test_transferStrategyHasSufficientAllowance() public {
+    address rewardsVault = this.TRANSFER_STRATEGY().getRewardsVault();
+    uint256 allowance = IERC20(this.REWARD_ASSET()).allowance(rewardsVault, address(this.TRANSFER_STRATEGY()));
 
-  function _getAssetConfigs() virtual internal view returns (RewardsDataTypes.RewardsConfigInput[] memory);
+    assertGe(allowance, this.TOTAL_DISTRIBUTION());
+  }
+
+  function test_rewardsVaultHasSufficientBalance() public {
+    address rewardsVault = this.TRANSFER_STRATEGY().getRewardsVault();
+    uint256 balance = IERC20(this.REWARD_ASSET()).balanceOf(rewardsVault);
+
+    assertGe(balance, this.TOTAL_DISTRIBUTION());
+  }
 
   function _validateIndexDoesNotOverflow(RewardsDataTypes.RewardsConfigInput memory rewardConfig) internal {
     uint256 maxTimeDelta = block.timestamp;
@@ -48,21 +48,11 @@ abstract contract LMSetupBaseTest is Test {
     assertGt(index, 100);
   }
 
-  function _calcualteAssetIndex(
-    address asset,
-    uint256 timeDelta,
-    uint256 emissionPerSecond,
-    uint256 assetTotalSupply
-  ) internal view returns (uint256) {
-    uint256 firstTerm = emissionPerSecond * timeDelta * (10 ** IERC20(asset).decimals());
-    assembly {
-      firstTerm := div(firstTerm, assetTotalSupply)
-    }
-    return firstTerm;
-  }
+  function _getEmissionsPerAsset() virtual internal pure returns (EmissionPerAsset[] memory);
 
-  function _toUint88(uint256 value) internal pure returns (uint88) {
-    require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
-    return uint88(value);
-  }
+  function _getAssetConfigs() virtual internal view returns (RewardsDataTypes.RewardsConfigInput[] memory);
+
+  function TRANSFER_STRATEGY() external virtual returns (ITransferStrategyBase);
+
+  function TOTAL_DISTRIBUTION() external virtual returns (uint256);
 }

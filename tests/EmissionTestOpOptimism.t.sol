@@ -7,41 +7,29 @@ import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregato
 import {LMSetupBaseTest} from './utils/LMSetupBaseTest.sol';
 
 contract EmissionTestOpOptimism is LMSetupBaseTest {
-  address constant GUARDIAN = 0xE50c8C619d05ff98b22Adf991F17602C774F785c;
-  IEmissionManager constant EMISSION_MANAGER =
-    IEmissionManager(0x048f2228D7Bf6776f99aB50cB1b1eaB4D1d4cA73);
-  address constant OP_EMISSION_ADMIN = 0x2501c477D0A35545a387Aa4A3EEe4292A9a8B3F0;
-  address constant OP = 0x4200000000000000000000000000000000000042;
-  IEACAggregatorProxy constant REWARD_ORACLE =
-    IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Optimism.DEFAULT_INCENTIVES_CONTROLLER;
+  address public constant override REWARD_ASSET = 0x4200000000000000000000000000000000000042; // OP
+  uint256 public constant override TOTAL_DISTRIBUTION = 5_000_000 ether; // 5m OP
+  ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x80B2a024A0f347e774ec3bc58304978FB3DFc940);
 
-  ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0x80B2a024A0f347e774ec3bc58304978FB3DFc940);
-
-  uint256 constant TOTAL_DISTRIBUTION = 5_000_000 ether; // 5m OP
+  address constant EMISSION_ADMIN = 0x2501c477D0A35545a387Aa4A3EEe4292A9a8B3F0;
   uint88 constant DURATION_DISTRIBUTION = 90 days;
+  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('optimism'), 33341802);
+
+    vm.prank(EMISSION_ADMIN);
+    IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
   }
 
   function test_activation() public {
-    vm.startPrank(OP_EMISSION_ADMIN);
-    /// @dev IMPORTANT!!
-    /// The emissions admin should have OP funds, and have approved the TOTAL_DISTRIBUTION
-    /// amount to the transfer strategy. If not, REWARDS WILL ACCRUE FINE AFTER `configureAssets()`, BUT THEY
-    /// WIL NOT BE CLAIMABLE UNTIL THERE IS FUNDS AND ALLOWANCE.
-    /// It is possible to approve less than TOTAL_DISTRIBUTION and doing it progressively over time as users
-    /// accrue more, but that is a decision of the emission's admin
-    IERC20(OP).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
-
-    EMISSION_MANAGER.configureAssets(_getAssetConfigs());
+    vm.prank(EMISSION_ADMIN);
+    IEmissionManager(AaveV3Optimism.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
 
     emit log_bytes(
-      abi.encodeWithSelector(EMISSION_MANAGER.configureAssets.selector, _getAssetConfigs())
+      abi.encodeWithSelector(IEmissionManager(AaveV3Optimism.EMISSION_MANAGER).configureAssets.selector, _getAssetConfigs())
     );
-
-    vm.stopPrank();
   }
 
   function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
@@ -57,7 +45,7 @@ contract EmissionTestOpOptimism is LMSetupBaseTest {
         totalSupply: 0, // IMPORTANT this will not be taken into account by the contracts, so 0 is fine
         distributionEnd: distributionEnd,
         asset: emissionsPerAsset[i].asset,
-        reward: OP,
+        reward: REWARD_ASSET,
         transferStrategy: TRANSFER_STRATEGY,
         rewardOracle: REWARD_ORACLE
       });

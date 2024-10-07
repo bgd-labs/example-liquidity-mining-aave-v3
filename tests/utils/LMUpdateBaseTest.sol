@@ -1,35 +1,28 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {IScaledBalanceToken} from 'aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol';
-import {RewardsDataTypes} from '../../src/interfaces/IEmissionManager.sol';
+import {IAaveIncentivesController} from '../../src/interfaces/IAaveIncentivesController.sol';
+import {ITransferStrategyBase} from '../../src/interfaces/IEmissionManager.sol';
+import {LMBaseTest} from '../utils/LMBaseTest.sol';
 
-abstract contract LMUpdateBaseTest is Test {
-  /// @dev Used to simplify the configuration of new emissions per second after the emissions program has been created
-  /// @param asset The asset for which new emissions per second needs to be configured
-  /// @param rewards The rewards for which new emissions per second needs to be configured
-  /// @param newEmissionsPerSecond The new emissions per second of the `reward` tokens
-  struct NewEmissionPerAsset {
-    address asset;
-    address[] rewards;
-    uint88[] newEmissionsPerSecond;
+abstract contract LMUpdateBaseTest is LMBaseTest {
+  function test_transferStrategyHasSufficientAllowance() public {
+    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
+    address rewardsVault = ITransferStrategyBase(transferStrategy).getRewardsVault();
+    uint256 allowance = IERC20(this.REWARD_ASSET()).allowance(rewardsVault, transferStrategy);
+
+    assertGe(allowance, this.NEW_TOTAL_DISTRIBUTION());
   }
 
-  /// @dev Used to simplify the configuration of new distribution end after the emissions program has been created
-  /// @param asset The asset for which new distribution end needs to be configured
-  /// @param reward The reward for which new distribution end needs to be configured
-  /// @param newDistributionEnd The new distribution end of the asset and reward
-  struct NewDistributionEndPerAsset {
-    address asset;
-    address reward;
-    uint32 newDistributionEnd;
+  function test_rewardsVaultHasSufficientBalance() public {
+    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
+    address rewardsVault = ITransferStrategyBase(transferStrategy).getRewardsVault();
+    uint256 balance = IERC20(this.REWARD_ASSET()).balanceOf(rewardsVault);
+
+    assertGe(balance, this.NEW_TOTAL_DISTRIBUTION());
   }
-
-  function _getNewDistributionEnd() internal virtual view returns (NewDistributionEndPerAsset memory);
-
-  function _getNewEmissionPerSecond() internal virtual pure returns (NewEmissionPerAsset memory);
 
   function test_validateLMParams() public {
     NewDistributionEndPerAsset memory distributionEnds = _getNewDistributionEnd();
@@ -59,26 +52,9 @@ abstract contract LMUpdateBaseTest is Test {
     assertGt(index, 100);
   }
 
-  function _calcualteAssetIndex(
-    address asset,
-    uint256 timeDelta,
-    uint256 emissionPerSecond,
-    uint256 assetTotalSupply
-  ) internal view returns (uint256) {
-    uint256 firstTerm = emissionPerSecond * timeDelta * (10 ** IERC20(asset).decimals());
-    assembly {
-      firstTerm := div(firstTerm, assetTotalSupply)
-    }
-    return firstTerm;
-  }
+  function _getNewDistributionEnd() internal virtual view returns (NewDistributionEndPerAsset memory);
 
-  function _toUint88(uint256 value) internal pure returns (uint88) {
-    require(value <= type(uint88).max, "SafeCast: value doesn't fit in 88 bits");
-    return uint88(value);
-  }
+  function _getNewEmissionPerSecond() internal virtual pure returns (NewEmissionPerAsset memory);
 
-  function _toUint32(uint256 value) internal pure returns (uint32) {
-    require(value <= type(uint32).max, "SafeCast: value doesn't fit in 32 bits");
-    return uint32(value);
-  }
+  function NEW_TOTAL_DISTRIBUTION() external virtual returns (uint256);
 }
