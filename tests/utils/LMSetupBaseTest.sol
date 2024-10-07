@@ -3,7 +3,7 @@ pragma solidity ^0.8.0;
 
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
 import {IScaledBalanceToken} from 'aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol';
-import {ITransferStrategyBase, RewardsDataTypes} from '../../src/interfaces/IEmissionManager.sol';
+import {ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../../src/interfaces/IEmissionManager.sol';
 import {LMBaseTest} from '../utils/LMBaseTest.sol';
 
 abstract contract LMSetupBaseTest is LMBaseTest {
@@ -32,6 +32,11 @@ abstract contract LMSetupBaseTest is LMBaseTest {
     assertGe(balance, this.TOTAL_DISTRIBUTION());
   }
 
+  function test_rewardOracleSanity() public {
+    int256 rewardPrice = this.REWARD_ORACLE().latestAnswer();
+    assertGt(uint256(rewardPrice), 0);
+  }
+
   function _validateIndexDoesNotOverflow(RewardsDataTypes.RewardsConfigInput memory rewardConfig) internal {
     uint256 maxTimeDelta = block.timestamp;
     uint256 totalSupplyLowerBound = 100 * (10 ** IERC20(rewardConfig.asset).decimals()); // 100 asset unit
@@ -53,6 +58,8 @@ abstract contract LMSetupBaseTest is LMBaseTest {
   function _getAssetConfigs() virtual internal view returns (RewardsDataTypes.RewardsConfigInput[] memory);
 
   function TRANSFER_STRATEGY() external virtual returns (ITransferStrategyBase);
+
+  function REWARD_ORACLE() external virtual returns (IEACAggregatorProxy);
 
   function TOTAL_DISTRIBUTION() external virtual returns (uint256);
 }

@@ -13,9 +13,9 @@ contract EmissionTestSDPolygon is LMSetupBaseTest {
   uint256 public constant override TOTAL_DISTRIBUTION = 81_120 ether; // 13'520 SD/month, 6 months
   /// @dev already deployed and configured for the both the SD asset and the 0x51358004cFe135E64453d7F6a0dC433CAba09A2a EMISSION_ADMIN
   ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0xC51e6E38d406F98049622Ca54a6096a23826B426);
+  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(0x30E9671a8092429A358a4E31d41381aa0D10b0a0); // SD/USD
 
   uint88 constant DURATION_DISTRIBUTION = 180 days;
-  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(0x30E9671a8092429A358a4E31d41381aa0D10b0a0); // SD/USD
   address constant EMISSION_ADMIN = 0x51358004cFe135E64453d7F6a0dC433CAba09A2a; // Stader Safe
   address constant SD_WHALE = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;
   address constant aPolMATICX_WHALE = 0x807c561657E4Bf582Eee6C34046B0507Fc359960;

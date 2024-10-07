@@ -13,10 +13,10 @@ contract EmissionTestSTMATICPolygon is LMSetupBaseTest {
   /// @dev already deployed and configured for the both the stMATIC asset and the 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263 EMISSION_ADMIN
   ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x53F57eAAD604307889D87b747Fc67ea9DE430B01);
   uint256 public constant override TOTAL_DISTRIBUTION = 60_000 ether; // 10'000 stMATIC/month, 6 months
+  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(AaveV3PolygonAssets.stMATIC_ORACLE);
 
   uint88 constant DURATION_DISTRIBUTION = 180 days;
   address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
-  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(AaveV3PolygonAssets.stMATIC_ORACLE);
   address constant STMATIC_WHALE = 0x667Ed8Cb7cf2B83FF9922a1357B104F9F11eE6f9;
   address constant vWMATIC_WHALE = 0xd0F7cB3Bf8560b1D8E20792A79F4D3aD5406014e;
 

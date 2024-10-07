@@ -13,8 +13,8 @@ contract EmissionTestMATICXPolygon is LMSetupBaseTest {
   uint256 public constant override TOTAL_DISTRIBUTION = 60_000 ether; // 10'000 MATICX/month, 6 months
   /// @dev already deployed and configured for the both the MATICX asset and the 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263 EMISSION_ADMIN
   ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x53F57eAAD604307889D87b747Fc67ea9DE430B01);
+  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(AaveV3PolygonAssets.MaticX_ORACLE);
 
-  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(AaveV3PolygonAssets.MaticX_ORACLE);
   uint88 public constant DURATION_DISTRIBUTION = 180 days;
   address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
   address MATICX_WHALE = 0xBA12222222228d8Ba445958a75a0704d566BF2C8;

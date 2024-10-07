@@ -11,10 +11,10 @@ contract EmissionTestOpOptimism is LMSetupBaseTest {
   address public constant override REWARD_ASSET = 0x4200000000000000000000000000000000000042; // OP
   uint256 public constant override TOTAL_DISTRIBUTION = 5_000_000 ether; // 5m OP
   ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x80B2a024A0f347e774ec3bc58304978FB3DFc940);
+  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
 
   address constant EMISSION_ADMIN = 0x2501c477D0A35545a387Aa4A3EEe4292A9a8B3F0;
   uint88 constant DURATION_DISTRIBUTION = 90 days;
-  IEACAggregatorProxy constant REWARD_ORACLE = IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('optimism'), 33341802);
