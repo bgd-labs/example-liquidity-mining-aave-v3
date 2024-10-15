@@ -40,12 +40,12 @@ contract EmissionTestaUSDSEthereum is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a);
 
-  uint256 constant TOTAL_DISTRIBUTION = 50_000 ether; // 10'000 MATICX/month, 6 months
+  uint256 constant TOTAL_DISTRIBUTION = 100_000 ether; // 10'000 MATICX/month, 6 months
   uint88 constant NEW_DURATION_DISTRIBUTION_END = 7 days;
 
   address asUSDS_WHALE = 0x230F86Fa0357fEB4e9F5043986383CFfb3DAB2bc;
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20966533);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20970256);
   }
 
   function test_extend() public {
