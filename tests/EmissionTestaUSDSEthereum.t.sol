@@ -30,93 +30,75 @@ contract EmissionTestaUSDSEthereum is BaseTest {
     uint32 newDistributionEnd;
   }
 
-  address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // aci
+  address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // aci.eth
   address constant REWARD_ASSET = AaveV3EthereumAssets.USDS_A_TOKEN;
   IEACAggregatorProxy constant REWARD_ORACLE =
     IEACAggregatorProxy(AaveV3EthereumAssets.USDS_ORACLE);
 
-  /// @dev already deployed and configured for the both the MATICX asset and the 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263
+  /// @dev already deployed and configured for aUSDS asset
   /// EMISSION_ADMIN
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a);
 
-  uint256 constant TOTAL_DISTRIBUTION = 100_000 ether; // 10'000 MATICX/month, 6 months
+  uint256 constant TOTAL_DISTRIBUTION = 100_000 ether; // 100_000 aUSDS/week, 6 months
   uint88 constant NEW_DURATION_DISTRIBUTION_END = 7 days;
 
-  address asUSDS_WHALE = 0x230F86Fa0357fEB4e9F5043986383CFfb3DAB2bc;
+  address aUSDS_WHALE = 0xF0A9234e0C5F50127B82960BAe21F05f9dD9aaF4;
+
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), 20970256);
   }
 
   function test_extend() public {
-    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
     vm.startPrank(EMISSION_ADMIN);
-    uint256 leftover = IERC20(REWARD_ASSET).allowance(EMISSION_ADMIN, address(TRANSFER_STRATEGY));
-    IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), leftover + TOTAL_DISTRIBUTION);
+
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
     IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setDistributionEnd(
       newDistributionEndPerAsset.asset,
       newDistributionEndPerAsset.reward,
       newDistributionEndPerAsset.newDistributionEnd
     );
-
     bytes memory distributionEnd = abi.encodeWithSelector(
-      	IEmissionManager.setDistributionEnd.selector,
-        newDistributionEndPerAsset.asset,
-        newDistributionEndPerAsset.reward,
-        newDistributionEndPerAsset.newDistributionEnd
+      IEmissionManager.setDistributionEnd.selector,
+      newDistributionEndPerAsset.asset,
+      newDistributionEndPerAsset.reward,
+      newDistributionEndPerAsset.newDistributionEnd
     );
+    emit log_named_bytes('newDistributionEnd', distributionEnd);
 
-    emit log_named_bytes(
-      'distributionEnd',
-      distributionEnd
-    );
-
-    NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
+    NewEmissionPerAsset memory newEmission = _getNewEmissionPerSecond();
     IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setEmissionPerSecond(
-      newEmissionPerAsset.asset,
-      newEmissionPerAsset.rewards,
-      newEmissionPerAsset.newEmissionsPerSecond
+      newEmission.asset,
+      newEmission.rewards,
+      newEmission.newEmissionsPerSecond
     );
-
-    bytes memory emmission =  abi.encodeWithSelector(
-    IEmissionManager.setEmissionPerSecond.selector,
-    newEmissionPerAsset.asset,
-    newEmissionPerAsset.rewards,
-    newEmissionPerAsset.newEmissionsPerSecond
-  );
-
-    emit log_named_bytes(
-      'emission',
-      emmission
+    bytes memory emmission = abi.encodeWithSelector(
+      IEmissionManager.setEmissionPerSecond.selector,
+      newEmission.asset,
+      newEmission.rewards,
+      newEmission.newEmissionsPerSecond
     );
-
-    bytes memory distributionEmssionCalldata = abi.encode(distributionEnd, emmission);
-
-    emit log_named_bytes(
-      'distributionEmssionCalldata',
-      distributionEmssionCalldata
-    );
+    emit log_named_bytes('newEmission', emmission);
 
     bytes memory approval = abi.encodeWithSelector(
       IERC20(REWARD_ASSET).approve.selector,
       TRANSFER_STRATEGY,
       type(uint256).max
     );
-
-    emit log_named_bytes(
-      'approval',
-      approval
-    );
+    emit log_named_bytes('approval', approval);
 
     vm.stopPrank();
 
-    //vm.startPrank(asUSDS_WHALE);
-    //IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, 50_000 ether);
+    uint256 leftover = IERC20(REWARD_ASSET).allowance(EMISSION_ADMIN, address(TRANSFER_STRATEGY));
 
-    //vm.stopPrank();
-    _testClaimRewardsForWhale(asUSDS_WHALE, AaveV3EthereumAssets.USDS_A_TOKEN, leftover + TOTAL_DISTRIBUTION);
+    // emit log_uint(leftover);
+
+    _testClaimRewardsForWhale(
+      aUSDS_WHALE,
+      AaveV3EthereumAssets.USDS_A_TOKEN,
+      leftover + TOTAL_DISTRIBUTION
+    );
   }
-  //0xc5a7b53800000000000000000000000032a6268f9ba3642dda7892add74f1d34469a425900000000000000000000000032a6268f9ba3642dda7892add74f1d34469a425900000000000000000000000000000000000000000000000000000000671778eff996868b00000000000000000000000032a6268f9ba3642dda7892add74f1d34469a4259000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000032a6268f9ba3642dda7892add74f1d34469a42590000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000024b6b6a3bd8a94f
 
   function _testClaimRewardsForWhale(
     address whale,
@@ -125,7 +107,7 @@ contract EmissionTestaUSDSEthereum is BaseTest {
   ) internal {
     vm.startPrank(whale);
 
-    vm.warp(block.timestamp + 15 days);
+    vm.warp(block.timestamp + 7 days);
 
     address[] memory assets = new address[](1);
     assets[0] = asset;
@@ -141,7 +123,12 @@ contract EmissionTestaUSDSEthereum is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
 
-    uint256 deviationAccepted = expectedReward; // Approx estimated rewards with current emission in 1 month
+    uint256 deviationAccepted = (expectedReward * 10) / 100; // the whale has ~10% of the aUSDC supply
+
+    // emit log_uint(balanceBefore);
+    // emit log_uint(balanceAfter);
+    // emit log_uint(deviationAccepted);
+
     assertApproxEqAbs(
       balanceBefore,
       balanceAfter,
