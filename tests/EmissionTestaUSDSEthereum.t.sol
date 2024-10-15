@@ -114,7 +114,7 @@ contract EmissionTestaUSDSEthereum is BaseTest {
   function _getNewDistributionEnd() internal view returns (NewDistributionEndPerAsset memory) {
     NewDistributionEndPerAsset memory newDistributionEndPerAsset;
 
-    newDistributionEndPerAsset.asset = AaveV3EthereumAssets.ETHx_A_TOKEN;
+    newDistributionEndPerAsset.asset = AaveV3EthereumAssets.USDS_A_TOKEN;
     newDistributionEndPerAsset.reward = REWARD_ASSET;
     newDistributionEndPerAsset.newDistributionEnd = _toUint32(
       block.timestamp + NEW_DURATION_DISTRIBUTION_END
