@@ -58,14 +58,54 @@ contract EmissionTestaUSDSEthereum is BaseTest {
       newDistributionEndPerAsset.reward,
       newDistributionEndPerAsset.newDistributionEnd
     );
-    emit log_named_bytes(
-      'calldata to submit from Gnosis Safe',
-      abi.encodeWithSelector(
+
+    bytes memory distributionEnd = abi.encodeWithSelector(
       	IEmissionManager.setDistributionEnd.selector,
         newDistributionEndPerAsset.asset,
         newDistributionEndPerAsset.reward,
         newDistributionEndPerAsset.newDistributionEnd
-      )
+    );
+
+    emit log_named_bytes(
+      'distributionEnd',
+      distributionEnd
+    );
+
+    NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
+    IEmissionManager(AaveV3Ethereum.EMISSION_MANAGER).setEmissionPerSecond(
+      newEmissionPerAsset.asset,
+      newEmissionPerAsset.rewards,
+      newEmissionPerAsset.newEmissionsPerSecond
+    );
+
+    bytes memory emmission =  abi.encodeWithSelector(
+    IEmissionManager.setEmissionPerSecond.selector,
+    newEmissionPerAsset.asset,
+    newEmissionPerAsset.rewards,
+    newEmissionPerAsset.newEmissionsPerSecond
+  );
+
+    emit log_named_bytes(
+      'emission',
+      emmission
+    );
+
+    bytes memory distributionEmssionCalldata = abi.encode(distributionEnd, emmission);
+
+    emit log_named_bytes(
+      'distributionEmssionCalldata',
+      distributionEmssionCalldata
+    );
+
+    bytes memory approval = abi.encodeWithSelector(
+      IERC20(REWARD_ASSET).approve.selector,
+      TRANSFER_STRATEGY,
+      type(uint256).max
+    );
+
+    emit log_named_bytes(
+      'approval',
+      approval
     );
 
     vm.stopPrank();
@@ -76,6 +116,7 @@ contract EmissionTestaUSDSEthereum is BaseTest {
     //vm.stopPrank();
     _testClaimRewardsForWhale(asUSDS_WHALE, AaveV3EthereumAssets.USDS_A_TOKEN, leftover + TOTAL_DISTRIBUTION);
   }
+  //0xc5a7b53800000000000000000000000032a6268f9ba3642dda7892add74f1d34469a425900000000000000000000000032a6268f9ba3642dda7892add74f1d34469a425900000000000000000000000000000000000000000000000000000000671778eff996868b00000000000000000000000032a6268f9ba3642dda7892add74f1d34469a4259000000000000000000000000000000000000000000000000000000000000006000000000000000000000000000000000000000000000000000000000000000a0000000000000000000000000000000000000000000000000000000000000000100000000000000000000000032a6268f9ba3642dda7892add74f1d34469a42590000000000000000000000000000000000000000000000000000000000000001000000000000000000000000000000000000000000000000024b6b6a3bd8a94f
 
   function _testClaimRewardsForWhale(
     address whale,
@@ -109,6 +150,21 @@ contract EmissionTestaUSDSEthereum is BaseTest {
     );
 
     vm.stopPrank();
+  }
+
+  function _getNewEmissionPerSecond() internal pure returns (NewEmissionPerAsset memory) {
+    NewEmissionPerAsset memory newEmissionPerAsset;
+
+    address[] memory rewards = new address[](1);
+    rewards[0] = REWARD_ASSET;
+    uint88[] memory newEmissionsPerSecond = new uint88[](1);
+    newEmissionsPerSecond[0] = _toUint88(TOTAL_DISTRIBUTION / NEW_DURATION_DISTRIBUTION_END);
+
+    newEmissionPerAsset.asset = AaveV3EthereumAssets.USDS_A_TOKEN;
+    newEmissionPerAsset.rewards = rewards;
+    newEmissionPerAsset.newEmissionsPerSecond = newEmissionsPerSecond;
+
+    return newEmissionPerAsset;
   }
 
   function _getNewDistributionEnd() internal view returns (NewDistributionEndPerAsset memory) {
