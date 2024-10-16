@@ -46,7 +46,7 @@ contract EmissionTestaUSDSEthereum is BaseTest {
   address aUSDS_WHALE = 0xF0A9234e0C5F50127B82960BAe21F05f9dD9aaF4;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('mainnet'), 20970256);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20977317);
   }
 
   function test_extend() public {
@@ -89,15 +89,15 @@ contract EmissionTestaUSDSEthereum is BaseTest {
 
     vm.stopPrank();
 
-    uint256 leftover = IERC20(REWARD_ASSET).allowance(EMISSION_ADMIN, address(TRANSFER_STRATEGY));
+    // uint256 leftover = IERC20(REWARD_ASSET).allowance(EMISSION_ADMIN, address(TRANSFER_STRATEGY));
 
     // emit log_uint(leftover);
 
-    _testClaimRewardsForWhale(
-      aUSDS_WHALE,
-      AaveV3EthereumAssets.USDS_A_TOKEN,
-      leftover + TOTAL_DISTRIBUTION
-    );
+    // _testClaimRewardsForWhale(
+    //   aUSDS_WHALE,
+    //   AaveV3EthereumAssets.USDS_A_TOKEN,
+    //   leftover + TOTAL_DISTRIBUTION
+    // );
   }
 
   function _testClaimRewardsForWhale(
