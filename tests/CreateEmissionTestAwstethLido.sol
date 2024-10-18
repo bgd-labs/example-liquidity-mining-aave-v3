@@ -31,8 +31,8 @@ contract CreateEmissionTestAwstETHLidoEthereum is BaseTest {
   ITransferStrategyBase constant TRANSFER_STRATEGY =
     ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a);
 
-  uint256 constant TOTAL_DISTRIBUTION = 3.71 ether; // 10'000 MATICX/month, 6 months
-  uint88 constant DURATION_DISTRIBUTION = 14 days;
+  uint256 constant TOTAL_DISTRIBUTION = 10.5 ether; // 10.5 wstETH/week
+  uint88 constant DURATION_DISTRIBUTION = 7 days;
 
   address awstETH_WHALE = 0xD090D2C8475c5eBdd1434A48897d81b9aAA20594; // 0.9607% of the supply, so <1% of the rewards
   address awstETH_WHALE2 = 0x684566C9FFcAC7F6A04C3a9997000d2d58C00824; // more than 5% of the supply
