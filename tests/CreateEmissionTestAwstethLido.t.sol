@@ -3,41 +3,42 @@ pragma solidity ^0.8.17;
 
 import {Test} from 'forge-std/Test.sol';
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
-import {AaveV3Polygon, AaveV3PolygonAssets} from 'aave-address-book/AaveV3Polygon.sol';
+import {AaveV3EthereumLido, AaveV3EthereumLidoAssets} from 'aave-address-book/AaveV3EthereumLido.sol';
 import {IAaveIncentivesController} from '../src/interfaces/IAaveIncentivesController.sol';
 
 import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../src/interfaces/IEmissionManager.sol';
 import {BaseTest} from './utils/BaseTest.sol';
 
-contract EmissionTestSTMATICPolygon is BaseTest {
+contract CreateEmissionTestAwstETHLidoEthereum is BaseTest {
   /// @dev Used to simplify the definition of a program of emissions
   /// @param asset The asset on which to put reward on, usually Aave aTokens or vTokens (variable debt tokens)
   /// @param emission Total emission of a `reward` token during the whole distribution duration defined
-  /// E.g. With an emission of 10_000 stMATIC tokens during 1 month, an emission of 50% for variableDebtPolWMATIC would be
-  /// 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_592_000 = ~ 0.0003858 * 1e18 stMATIC per second
+  /// E.g. With an emission of 10_000 MATICX tokens during 1 month, an emission of 50% for variableDebtPolWMATIC would be
+  /// 10_000 * 1e18 * 50% / 30 days in seconds = 1_000 * 1e18 / 2_592_000 = ~ 0.0003858 * 1e18 MATICX per second
   struct EmissionPerAsset {
     address asset;
     uint256 emission;
   }
 
-  address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
-  address constant REWARD_ASSET = AaveV3PolygonAssets.stMATIC_UNDERLYING;
+  address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // aci
+  address constant REWARD_ASSET = AaveV3EthereumLidoAssets.wstETH_A_TOKEN;
+  address constant ASSET = AaveV3EthereumLidoAssets.wstETH_A_TOKEN;
   IEACAggregatorProxy constant REWARD_ORACLE =
-    IEACAggregatorProxy(AaveV3PolygonAssets.stMATIC_ORACLE);
+    IEACAggregatorProxy(AaveV3EthereumLidoAssets.wstETH_ORACLE);
 
-  /// @dev already deployed and configured for the both the stMATIC asset and the 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263
+  /// @dev already deployed and configured for the both the wstETH asset
   /// EMISSION_ADMIN
   ITransferStrategyBase constant TRANSFER_STRATEGY =
-    ITransferStrategyBase(0x53F57eAAD604307889D87b747Fc67ea9DE430B01);
+    ITransferStrategyBase(0x4fDB95C607EDe09A548F60685b56C034992B194a);
 
-  uint256 constant TOTAL_DISTRIBUTION = 60_000 ether; // 10'000 stMATIC/month, 6 months
-  uint88 constant DURATION_DISTRIBUTION = 180 days;
+  uint256 constant TOTAL_DISTRIBUTION = 10.5 ether; // 10.5 wstETH/week
+  uint88 constant DURATION_DISTRIBUTION = 7 days;
 
-  address STMATIC_WHALE = 0x667Ed8Cb7cf2B83FF9922a1357B104F9F11eE6f9;
-  address vWMATIC_WHALE = 0xe52F5349153b8eb3B89675AF45aC7502C4997E6A;
+  address awstETH_WHALE = 0xD090D2C8475c5eBdd1434A48897d81b9aAA20594; // 0.9607% of the supply, so <1% of the rewards
+  address awstETH_WHALE2 = 0x684566C9FFcAC7F6A04C3a9997000d2d58C00824; // more than 5% of the supply
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('polygon'), 60952532);
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 20991496);
   }
 
   function test_activation() public {
@@ -49,46 +50,59 @@ contract EmissionTestSTMATICPolygon is BaseTest {
     /// It is possible to approve less than TOTAL_DISTRIBUTION and doing it progressively over time as users
     /// accrue more, but that is a decision of the emission's admin
     IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
-
-    IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
-
-    emit log_named_bytes(
-      'calldata to submit from Gnosis Safe',
-      abi.encodeWithSelector(
-        IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).configureAssets.selector,
-        _getAssetConfigs()
-      )
+    bytes memory approval = abi.encodeWithSelector(
+      IERC20(REWARD_ASSET).approve.selector,
+      address(TRANSFER_STRATEGY),
+      TOTAL_DISTRIBUTION
     );
 
+    emit log_named_bytes('Approval Asset Reward', approval);
+
+    IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
+    bytes memory emmission = abi.encodeWithSelector(
+      IEmissionManager.configureAssets.selector,
+      _getAssetConfigs()
+    );
+
+    emit log_named_bytes('Create Emission', emmission);
+
     vm.stopPrank();
 
-    vm.startPrank(STMATIC_WHALE);
-    IERC20(REWARD_ASSET).transfer(EMISSION_ADMIN, 50_000 ether);
+    _testClaimRewardsForWhale(awstETH_WHALE, ASSET, 96 * 10 ** 14); // 0.96%
+    _testClaimRewardsForWhale(awstETH_WHALE2, ASSET, 51 * 10 ** 15); // 5.1%
+    // _testClaimRewardsForWhale(awstETH_WHALE2, ASSET, 6 * 10 ** 16); // 6% => revert
+  }
 
-    vm.stopPrank();
+  function _testClaimRewardsForWhale(
+    address whale,
+    address asset,
+    uint256 expectedRewardPercentage
+  ) internal {
+    vm.startPrank(whale);
 
-    vm.startPrank(vWMATIC_WHALE);
-
-    vm.warp(block.timestamp + 30 days);
+    vm.warp(block.timestamp + DURATION_DISTRIBUTION);
 
     address[] memory assets = new address[](1);
-    assets[0] = AaveV3PolygonAssets.WMATIC_V_TOKEN;
+    assets[0] = asset;
 
-    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(vWMATIC_WHALE);
+    uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
 
-    IAaveIncentivesController(AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
+    IAaveIncentivesController(AaveV3EthereumLido.DEFAULT_INCENTIVES_CONTROLLER).claimRewards(
       assets,
       type(uint256).max,
-      vWMATIC_WHALE,
+      whale,
       REWARD_ASSET
     );
 
-    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(vWMATIC_WHALE);
+    uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
 
-    uint256 deviationAccepted = 1300 ether; // Approx estimated rewards with current emission in 1 month
-    assertApproxEqAbs(
-      balanceBefore,
-      balanceAfter,
+    uint256 rewardsClaimed = balanceAfter - balanceBefore;
+    uint256 rewardsExpected = (TOTAL_DISTRIBUTION * expectedRewardPercentage) / 10 ** 18;
+
+    uint256 deviationAccepted = 10 ** 16; // 1% of deviation accepted
+    assertApproxEqRel(
+      rewardsClaimed,
+      rewardsExpected,
       deviationAccepted,
       'Invalid delta on claimed rewards'
     );
@@ -121,7 +135,7 @@ contract EmissionTestSTMATICPolygon is BaseTest {
   function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
     emissionsPerAsset[0] = EmissionPerAsset({
-      asset: AaveV3PolygonAssets.WMATIC_V_TOKEN,
+      asset: ASSET,
       emission: TOTAL_DISTRIBUTION // 100% of the distribution
     });
 
