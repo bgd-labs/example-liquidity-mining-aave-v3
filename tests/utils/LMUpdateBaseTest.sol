@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {IERC20} from 'forge-std/interfaces/IERC20.sol';
-import {IScaledBalanceToken} from 'aave-v3-core/contracts/interfaces/IScaledBalanceToken.sol';
+import {IScaledBalanceToken} from 'aave-v3-origin/contracts/interfaces/IScaledBalanceToken.sol';
 import {IAaveIncentivesController} from '../../src/interfaces/IAaveIncentivesController.sol';
 import {ITransferStrategyBase} from '../../src/interfaces/IEmissionManager.sol';
 import {LMBaseTest} from '../utils/LMBaseTest.sol';

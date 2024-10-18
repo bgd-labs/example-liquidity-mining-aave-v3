@@ -50,7 +50,7 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
 
     _testClaimRewardsForWhale(
       vWMATIC_WHALE,
-      AaveV3PolygonAssets.WMATIC_V_TOKEN,
+      AaveV3PolygonAssets.WPOL_V_TOKEN,
       DURATION_DISTRIBUTION,
       490 ether
     );
@@ -77,7 +77,7 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
 
     _testClaimRewardsForWhale(
       vWMATIC_WHALE,
-      AaveV3PolygonAssets.WMATIC_V_TOKEN,
+      AaveV3PolygonAssets.WPOL_V_TOKEN,
       DURATION_DISTRIBUTION,
       83 ether
     );
@@ -91,7 +91,7 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
     uint88[] memory newEmissionsPerSecond = new uint88[](1);
     newEmissionsPerSecond[0] = _toUint88(NEW_TOTAL_DISTRIBUTION / DURATION_DISTRIBUTION);
 
-    newEmissionPerAsset.asset = AaveV3PolygonAssets.WMATIC_V_TOKEN;
+    newEmissionPerAsset.asset = AaveV3PolygonAssets.WPOL_V_TOKEN;
     newEmissionPerAsset.rewards = rewards;
     newEmissionPerAsset.newEmissionsPerSecond = newEmissionsPerSecond;
 
@@ -101,7 +101,7 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
   function _getNewDistributionEnd() internal override view returns (NewDistributionEndPerAsset memory) {
     NewDistributionEndPerAsset memory newDistributionEndPerAsset;
 
-    newDistributionEndPerAsset.asset = AaveV3PolygonAssets.WMATIC_V_TOKEN;
+    newDistributionEndPerAsset.asset = AaveV3PolygonAssets.WPOL_V_TOKEN;
     newDistributionEndPerAsset.reward = REWARD_ASSET;
     newDistributionEndPerAsset.newDistributionEnd = _toUint32(
       block.timestamp + NEW_DURATION_DISTRIBUTION_END

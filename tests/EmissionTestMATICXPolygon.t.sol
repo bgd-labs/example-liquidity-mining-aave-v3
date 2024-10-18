@@ -44,7 +44,7 @@ contract EmissionTestMATICXPolygon is LMSetupBaseTest {
 
     _testClaimRewardsForWhale(
       vWMATIC_WHALE,
-      AaveV3PolygonAssets.WMATIC_V_TOKEN,
+      AaveV3PolygonAssets.WPOL_V_TOKEN,
       DURATION_DISTRIBUTION,
       7150 ether
     );
@@ -75,7 +75,7 @@ contract EmissionTestMATICXPolygon is LMSetupBaseTest {
   function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
     emissionsPerAsset[0] = EmissionPerAsset({
-      asset: AaveV3PolygonAssets.WMATIC_V_TOKEN,
+      asset: AaveV3PolygonAssets.WPOL_V_TOKEN ,
       emission: TOTAL_DISTRIBUTION // 100% of the distribution
     });
 
