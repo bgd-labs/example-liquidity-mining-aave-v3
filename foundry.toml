@@ -5,6 +5,7 @@ script = 'scripts'
 out = 'out'
 libs = ['lib']
 fs_permissions = [{access = "write", path = "./reports"}]
+solc = '0.8.19'
 evm_version = 'shanghai'
 
 [rpc_endpoints]
