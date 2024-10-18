@@ -96,14 +96,8 @@ contract CreateEmissionTestAwstETHLidoEthereum is BaseTest {
 
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
 
-    emit log_uint(balanceBefore);
-    emit log_uint(balanceAfter);
-
     uint256 rewardsClaimed = balanceAfter - balanceBefore;
     uint256 rewardsExpected = (TOTAL_DISTRIBUTION * expectedRewardPercentage) / 10 ** 18;
-
-    emit log_uint(rewardsClaimed);
-    emit log_uint(rewardsExpected);
 
     uint256 deviationAccepted = 10 ** 16; // 1% of deviation accepted
     assertApproxEqRel(
