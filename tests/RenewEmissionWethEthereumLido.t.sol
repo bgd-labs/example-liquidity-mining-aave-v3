@@ -44,8 +44,8 @@ contract EmissionTestWethEthereumLido is BaseTest {
   uint256 constant TOTAL_DISTRIBUTION = 109 ether; // 109 aWETH
   uint88 constant NEW_DURATION_DISTRIBUTION = 2 weeks; // 2 weeks
 
-  // address WHALE = 0xee2826453A4Fd5AfeB7ceffeEF3fFA2320081268; // 0.7% of the supply => claimed his previous rewards recently, so low deviation expected
-  address WHALE = 0x08d49c032f268D3AC4265d1909c28DfaAb440040; // 0.43% of the supply => claimed his previous rewards recently, so low deviation expected
+  // address WHALE_1 = 0xee2826453A4Fd5AfeB7ceffeEF3fFA2320081268; // 0.7% of the supply => claimed his previous rewards recently, so low deviation expected
+  address WHALE_2 = 0x08d49c032f268D3AC4265d1909c28DfaAb440040; // 0.43% of the supply => claimed his previous rewards recently, so low deviation expected
 
   function setUp() public {
     vm.createSelectFork(vm.rpcUrl('mainnet'), 21013382);
@@ -94,8 +94,8 @@ contract EmissionTestWethEthereumLido is BaseTest {
 
     vm.stopPrank();
 
-    // _testClaimRewardsForWhale(WHALE, ASSET, 7 * 10 ** 15);
-    _testClaimRewardsForWhale(WHALE, ASSET, 43 * 10 ** 14);
+    // _testClaimRewardsForWhale(WHALE_1, ASSET, 7 * 10 ** 15);
+    _testClaimRewardsForWhale(WHALE_2, ASSET, 437 * 10 ** 13);
   }
 
   function _testClaimRewardsForWhale(
@@ -105,10 +105,14 @@ contract EmissionTestWethEthereumLido is BaseTest {
   ) internal {
     vm.startPrank(whale);
 
-    vm.warp(block.timestamp + NEW_DURATION_DISTRIBUTION);
-
     address[] memory assets = new address[](1);
     assets[0] = asset;
+
+    uint256 unclaimedRewards = IAaveIncentivesController(
+      AaveV3EthereumLido.DEFAULT_INCENTIVES_CONTROLLER
+    ).getUserRewards(assets, whale, ASSET);
+
+    vm.warp(block.timestamp + NEW_DURATION_DISTRIBUTION);
 
     uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
 
@@ -124,13 +128,15 @@ contract EmissionTestWethEthereumLido is BaseTest {
     uint256 rewardsClaimed = balanceAfter - balanceBefore;
     uint256 rewardsExpected = (TOTAL_DISTRIBUTION * expectedRewardPercentage) / 10 ** 18;
 
-    emit log_uint(rewardsClaimed);
-    emit log_uint(rewardsExpected);
+    emit log_named_uint('unclaimedRewards', unclaimedRewards);
+    emit log_named_uint('rewardsClaimed', rewardsClaimed);
+    emit log_named_uint('rewardsClaimed - unclaimedRewards', rewardsClaimed - unclaimedRewards);
+    emit log_named_uint('rewardsExpected', rewardsExpected);
 
     // uint256 deviationAccepted = 10 ** 16; // 1% of deviation accepted
-    uint256 deviationAccepted = 140 ** 16; // 1% of deviation accepted
+    uint256 deviationAccepted = 10 ** 16; // 1% of deviation accepted
     assertApproxEqRel(
-      rewardsClaimed,
+      rewardsClaimed - unclaimedRewards,
       rewardsExpected,
       deviationAccepted,
       'Invalid delta on claimed rewards'

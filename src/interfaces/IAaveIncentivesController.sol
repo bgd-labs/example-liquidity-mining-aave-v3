@@ -2,6 +2,12 @@
 pragma solidity ^0.8.0;
 
 interface IAaveIncentivesController {
+  function getUserRewards(
+    address[] calldata assets,
+    address user,
+    address reward
+  ) external returns (uint256);
+
   function claimRewards(
     address[] calldata assets,
     uint256 amount,
