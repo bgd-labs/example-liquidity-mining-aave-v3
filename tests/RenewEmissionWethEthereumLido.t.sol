@@ -70,20 +70,6 @@ contract EmissionTestWethEthereumLido is BaseTest {
     );
     emit log_named_bytes('newDistributionEnd', distributionEnd);
 
-    NewEmissionPerAsset memory newEmission = _getNewEmissionPerSecond();
-    IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).setEmissionPerSecond(
-      newEmission.asset,
-      newEmission.rewards,
-      newEmission.newEmissionsPerSecond
-    );
-    bytes memory emmission = abi.encodeWithSelector(
-      IEmissionManager.setEmissionPerSecond.selector,
-      newEmission.asset,
-      newEmission.rewards,
-      newEmission.newEmissionsPerSecond
-    );
-    emit log_named_bytes('newEmission', emmission);
-
     emit log_named_address('token', REWARD_ASSET);
     bytes memory approval = abi.encodeWithSelector(
       IERC20(REWARD_ASSET).approve.selector,
