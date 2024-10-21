@@ -11,8 +11,9 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
   address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
   address public constant override REWARD_ASSET = AaveV3PolygonAssets.MaticX_UNDERLYING;
   uint256 public constant override NEW_TOTAL_DISTRIBUTION = 30_000 ether;
+  address public constant override EMISSION_MANAGER = AaveV3Polygon.EMISSION_MANAGER;
+  address public constant override EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
 
-  address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
   uint88 constant NEW_DURATION_DISTRIBUTION_END = 15 days;
   uint88 constant DURATION_DISTRIBUTION = 180 days;
   address constant vWMATIC_WHALE = 0xe52F5349153b8eb3B89675AF45aC7502C4997E6A;
@@ -27,59 +28,27 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
     IERC20(REWARD_ASSET).approve(transferStrategy, NEW_TOTAL_DISTRIBUTION);
   }
 
-  function test_setNewEmissionPerSecond() public {
+  function test_claimRewards() public {
     NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
-    vm.prank(EMISSION_ADMIN);
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
 
-    // The emission admin can change the emission per second of the reward after the rewards have been configured.
-    // Here we change the initial emission per second to the new one.
+    vm.startPrank(EMISSION_ADMIN);
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).setEmissionPerSecond(
       newEmissionPerAsset.asset,
       newEmissionPerAsset.rewards,
       newEmissionPerAsset.newEmissionsPerSecond
     );
-    emit log_named_bytes(
-      'calldata to execute tx on EMISSION_MANAGER to set the new emission per second from the emissions admin (safe)',
-      abi.encodeWithSelector(
-        IEmissionManager.setEmissionPerSecond.selector,
-        newEmissionPerAsset.asset,
-        newEmissionPerAsset.rewards,
-        newEmissionPerAsset.newEmissionsPerSecond
-      )
-    );
-
-    _testClaimRewardsForWhale(
-      vWMATIC_WHALE,
-      AaveV3PolygonAssets.WPOL_V_TOKEN,
-      DURATION_DISTRIBUTION,
-      490 ether
-    );
-  }
-
-  function test_setNewDistributionEnd() public {
-    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
-    vm.prank(EMISSION_ADMIN);
-
     IEmissionManager(AaveV3Polygon.EMISSION_MANAGER).setDistributionEnd(
       newDistributionEndPerAsset.asset,
       newDistributionEndPerAsset.reward,
       newDistributionEndPerAsset.newDistributionEnd
     );
-    emit log_named_bytes(
-      'calldata to execute tx on EMISSION_MANAGER to set the new distribution end from the emissions admin (safe)',
-      abi.encodeWithSelector(
-        IEmissionManager.setDistributionEnd.selector,
-        newDistributionEndPerAsset.asset,
-        newDistributionEndPerAsset.reward,
-        newDistributionEndPerAsset.newDistributionEnd
-      )
-    );
 
     _testClaimRewardsForWhale(
       vWMATIC_WHALE,
       AaveV3PolygonAssets.WPOL_V_TOKEN,
       DURATION_DISTRIBUTION,
-      83 ether
+      41.72 ether
     );
   }
 

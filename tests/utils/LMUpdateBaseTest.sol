@@ -6,8 +6,51 @@ import {IScaledBalanceToken} from 'aave-v3-origin/contracts/interfaces/IScaledBa
 import {IAaveIncentivesController} from '../../src/interfaces/IAaveIncentivesController.sol';
 import {ITransferStrategyBase} from '../../src/interfaces/IEmissionManager.sol';
 import {LMBaseTest} from '../utils/LMBaseTest.sol';
+import {IEmissionManager} from '../../src/interfaces/IEmissionManager.sol';
 
 abstract contract LMUpdateBaseTest is LMBaseTest {
+  function test_setNewEmissionPerSecond() public {
+    NewEmissionPerAsset memory newEmissionPerAsset = _getNewEmissionPerSecond();
+    vm.startPrank(this.EMISSION_ADMIN());
+
+    // The emission admin can change the emission per second of the reward after the rewards have been configured.
+    // Here we change the initial emission per second to the new one.
+    IEmissionManager(this.EMISSION_MANAGER()).setEmissionPerSecond(
+      newEmissionPerAsset.asset,
+      newEmissionPerAsset.rewards,
+      newEmissionPerAsset.newEmissionsPerSecond
+    );
+    emit log_named_bytes(
+      'calldata to execute tx on EMISSION_MANAGER to set the new emission per second from the emissions admin (safe)',
+      abi.encodeWithSelector(
+        IEmissionManager.setEmissionPerSecond.selector,
+        newEmissionPerAsset.asset,
+        newEmissionPerAsset.rewards,
+        newEmissionPerAsset.newEmissionsPerSecond
+      )
+    );
+  }
+
+  function test_setNewDistributionEnd() public {
+    NewDistributionEndPerAsset memory newDistributionEndPerAsset = _getNewDistributionEnd();
+    vm.startPrank(this.EMISSION_ADMIN());
+
+    IEmissionManager(this.EMISSION_MANAGER()).setDistributionEnd(
+      newDistributionEndPerAsset.asset,
+      newDistributionEndPerAsset.reward,
+      newDistributionEndPerAsset.newDistributionEnd
+    );
+    emit log_named_bytes(
+      'calldata to execute tx on EMISSION_MANAGER to set the new distribution end from the emissions admin (safe)',
+      abi.encodeWithSelector(
+        IEmissionManager.setDistributionEnd.selector,
+        newDistributionEndPerAsset.asset,
+        newDistributionEndPerAsset.reward,
+        newDistributionEndPerAsset.newDistributionEnd
+      )
+    );
+  }
+
   function test_transferStrategyHasSufficientAllowance() public {
     address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
     address rewardsVault = ITransferStrategyBase(transferStrategy).getRewardsVault();
@@ -57,4 +100,8 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
   function _getNewEmissionPerSecond() internal virtual pure returns (NewEmissionPerAsset memory);
 
   function NEW_TOTAL_DISTRIBUTION() external virtual returns (uint256);
+
+  function EMISSION_ADMIN() external virtual returns (address);
+
+  function EMISSION_MANAGER() external virtual returns (address);
 }
