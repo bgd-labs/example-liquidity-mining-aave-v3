@@ -2,18 +2,30 @@ import * as addressBook from '@bgd-labs/aave-address-book';
 import {Hex, getContract, Address} from 'viem';
 import {CodeArtifact, FEATURE, FeatureModule} from '../types';
 import {LiquidityMiningUpdate} from './types';
-import {supplyUnderlyingAssetsSelectPrompt, supplyBorrowAssetSelectPrompt, translateAssetToAssetLibUnderlying, translateSupplyBorrowAssetToWhaleConstant} from '../prompts/assetsSelectPrompt';
+import {
+  supplyUnderlyingAssetsSelectPrompt,
+  supplyBorrowAssetSelectPrompt,
+  translateAssetToAssetLibUnderlying,
+  translateSupplyBorrowAssetToWhaleConstant,
+} from '../prompts/assetsSelectPrompt';
 import {addressPrompt} from '../prompts/addressPrompt';
 import {percentPrompt} from '../prompts/percentPrompt';
 import {CHAIN_ID_CLIENT_MAP} from '@bgd-labs/js-utils';
 import {numberPromptInDays} from '../prompts/numberPrompt';
-import {getTokenDecimals, getExplorerTokenHoldersLink, getAddressOfSupplyBorrowAsset, getPoolChain, CHAIN_TO_CHAIN_ID, calculateExpectedWhaleRewards} from '../common';
+import {
+  getTokenDecimals,
+  getExplorerTokenHoldersLink,
+  getAddressOfSupplyBorrowAsset,
+  getPoolChain,
+  CHAIN_TO_CHAIN_ID,
+  calculateExpectedWhaleRewards,
+} from '../common';
 
 export async function fetchLiquidityMiningUpdateParams({pool}): Promise<LiquidityMiningUpdate> {
   let rewardToken = await supplyUnderlyingAssetsSelectPrompt({
     message: 'Select the reward asset for the LM:',
     pool,
-    required: true
+    required: true,
   });
   let rewardTokenAddress: Hex;
   if (rewardToken == 'custom') {
@@ -23,31 +35,40 @@ export async function fetchLiquidityMiningUpdateParams({pool}): Promise<Liquidit
     });
     rewardTokenAddress = rewardToken as Hex;
   } else {
-    rewardTokenAddress = rewardToken.includes('_aToken') ?
-      addressBook[pool].ASSETS[rewardToken.replace('_aToken', '')].A_TOKEN : addressBook[pool].ASSETS[rewardToken].UNDERLYING;
+    rewardTokenAddress = rewardToken.includes('_aToken')
+      ? addressBook[pool].ASSETS[rewardToken.replace('_aToken', '')].A_TOKEN
+      : addressBook[pool].ASSETS[rewardToken].UNDERLYING;
     rewardToken = translateAssetToAssetLibUnderlying(rewardToken, pool);
   }
   const asset = await supplyBorrowAssetSelectPrompt({
     message: 'Enter the asset for which the LM should be updated:',
     pool,
-    required: true
+    required: true,
   });
   const distributionEnd = await numberPromptInDays({
     message: 'Enter the new distribution time in days from the current timestamp:',
-    required: true
+    required: true,
   });
   const chainId: number = CHAIN_TO_CHAIN_ID[getPoolChain(pool)];
 
   const rewardAmount = await percentPrompt({
     message: `Enter the new updated reward amount (in token units) for the reward token to be distributed`,
-    required: true
+    required: true,
   });
   const supplyBorrowAssetAddress = getAddressOfSupplyBorrowAsset(pool, asset);
   const whaleAddress = await addressPrompt({
-    message: `Enter the whale address to test rewards for ${asset} from ${getExplorerTokenHoldersLink(chainId, supplyBorrowAssetAddress)} `,
-    required: true
+    message: `Enter the whale address to test rewards for ${asset} from ${getExplorerTokenHoldersLink(
+      chainId,
+      supplyBorrowAssetAddress
+    )} `,
+    required: true,
   });
-  const whaleExpectedReward = await calculateExpectedWhaleRewards(whaleAddress, supplyBorrowAssetAddress, rewardAmount, chainId);
+  const whaleExpectedReward = await calculateExpectedWhaleRewards(
+    whaleAddress,
+    supplyBorrowAssetAddress,
+    rewardAmount,
+    chainId
+  );
   const rewardTokenDecimals = await getTokenDecimals(rewardTokenAddress, chainId);
 
   const emissionManagerContract = getContract({
@@ -57,13 +78,15 @@ export async function fetchLiquidityMiningUpdateParams({pool}): Promise<Liquidit
         name: 'getEmissionAdmin',
         outputs: [{type: 'address'}],
         stateMutability: 'view',
-        type: 'function'
-      }
+        type: 'function',
+      },
     ],
     client: CHAIN_ID_CLIENT_MAP[chainId],
     address: addressBook[pool].EMISSION_MANAGER,
   });
-  const emissionsAdmin = await emissionManagerContract.read.getEmissionAdmin([rewardTokenAddress]) as Address;
+  const emissionsAdmin = (await emissionManagerContract.read.getEmissionAdmin([
+    rewardTokenAddress,
+  ])) as Address;
 
   return {
     emissionsAdmin,
@@ -73,8 +96,8 @@ export async function fetchLiquidityMiningUpdateParams({pool}): Promise<Liquidit
     distributionEnd,
     rewardAmount,
     whaleAddress,
-    whaleExpectedReward
-  }
+    whaleExpectedReward,
+  };
 }
 
 export const updateLiquidityMining: FeatureModule<LiquidityMiningUpdate> = {
@@ -94,7 +117,10 @@ export const updateLiquidityMining: FeatureModule<LiquidityMiningUpdate> = {
           `address public constant override EMISSION_ADMIN = ${cfg.emissionsAdmin};`,
           `address public constant override EMISSION_MANAGER = ${pool}.EMISSION_MANAGER;`,
           `uint256 public constant NEW_DURATION_DISTRIBUTION_END = ${cfg.distributionEnd} days;`,
-          `address public constant ${translateSupplyBorrowAssetToWhaleConstant(cfg.asset, pool)} = ${cfg.whaleAddress};\n`,
+          `address public constant ${translateSupplyBorrowAssetToWhaleConstant(
+            cfg.asset,
+            pool
+          )} = ${cfg.whaleAddress};\n`,
           `address public constant override DEFAULT_INCENTIVES_CONTROLLER = ${pool}.DEFAULT_INCENTIVES_CONTROLLER;\n`,
         ],
         fn: [
@@ -141,7 +167,10 @@ export const updateLiquidityMining: FeatureModule<LiquidityMiningUpdate> = {
           function _getNewDistributionEnd() internal override view returns (NewDistributionEndPerAsset memory) {
             NewDistributionEndPerAsset memory newDistributionEndPerAsset;
 
-            newDistributionEndPerAsset.asset = ${translateAssetToAssetLibUnderlying(cfg.asset, pool)};
+            newDistributionEndPerAsset.asset = ${translateAssetToAssetLibUnderlying(
+              cfg.asset,
+              pool
+            )};
             newDistributionEndPerAsset.reward = REWARD_ASSET;
             newDistributionEndPerAsset.newDistributionEnd = _toUint32(
               block.timestamp + NEW_DURATION_DISTRIBUTION_END
@@ -149,7 +178,7 @@ export const updateLiquidityMining: FeatureModule<LiquidityMiningUpdate> = {
 
             return newDistributionEndPerAsset;
           }
-          `
+          `,
         ],
       },
     };

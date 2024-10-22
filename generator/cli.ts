@@ -2,15 +2,7 @@ import path from 'path';
 import {Command, Option} from 'commander';
 import {CHAIN_TO_CHAIN_ID, getDate, getPoolChain, pascalCase} from './common';
 import {input, select} from '@inquirer/prompts';
-import {
-  ConfigFile,
-  FEATURE,
-  Options,
-  POOLS,
-  PoolCache,
-  PoolConfigs,
-  PoolIdentifier,
-} from './types';
+import {ConfigFile, FEATURE, Options, POOLS, PoolCache, PoolConfigs, PoolIdentifier} from './types';
 import {generateFiles, writeFiles} from './generator';
 import {CHAIN_ID_CLIENT_MAP} from '@bgd-labs/js-utils';
 import {getBlockNumber} from 'viem/actions';
@@ -32,10 +24,7 @@ program
 let options = program.opts<Options>();
 let poolConfigs: PoolConfigs = {};
 
-const FEATURE_MODULES = [
-  setupLiquidityMining,
-  updateLiquidityMining
-];
+const FEATURE_MODULES = [setupLiquidityMining, updateLiquidityMining];
 
 async function generateDeterministicPoolCache(pool: PoolIdentifier): Promise<PoolCache> {
   const chain = getPoolChain(pool);
@@ -63,7 +52,7 @@ async function fetchLMSetupOptions(pool: PoolIdentifier) {
       pool,
       cfg: poolConfigs[pool]!.configs[feature],
       cache: poolConfigs[pool]!.cache,
-    }),
+    })
   );
 }
 
@@ -87,7 +76,7 @@ async function fetchLMUpdateOptions(pool: PoolIdentifier) {
       pool,
       cfg: poolConfigs[pool]!.configs[feature],
       cache: poolConfigs[pool]!.cache,
-    }),
+    })
   );
 }
 
@@ -106,7 +95,7 @@ if (options.configFile) {
         pool: options.pool,
         cfg: poolConfigs[options.pool]!.configs[FEATURE.SETUP_LM] as LiquidityMiningSetup,
         cache: poolConfigs[options.pool]!.cache,
-      }),
+      })
     );
   } else {
     poolConfigs[options.pool]!.artifacts.push(
@@ -115,10 +104,9 @@ if (options.configFile) {
         pool: options.pool,
         cfg: poolConfigs[options.pool]!.configs[FEATURE.UPDATE_LM] as LiquidityMiningUpdate,
         cache: poolConfigs[options.pool]!.cache,
-      }),
+      })
     );
   }
-
 } else {
   options.feature = await select({
     message: 'Do you wish to setup a new liquidity mining or update an existing one?',
@@ -132,8 +120,7 @@ if (options.configFile) {
 
   if (!options.title) {
     options.title = await input({
-      message:
-        'Short title of the liquidity mining program',
+      message: 'Short title of the liquidity mining program',
       validate(input) {
         if (input.length == 0) return "Your title can't be empty";
         if (input.trim().length > 80) return 'Your title is to long';

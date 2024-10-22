@@ -14,7 +14,8 @@ export async function assetsSelectPrompt({pool, message}: GenericPoolPrompt) {
     message,
     choices: [
       {name: 'Custom Address (Enter Manually)', value: 'custom'},
-      ...getAssets(pool).map((asset) => ({name: asset, value: asset}))],
+      ...getAssets(pool).map((asset) => ({name: asset, value: asset})),
+    ],
   });
 }
 
@@ -24,7 +25,7 @@ export async function supplyUnderlyingAssetsSelectPrompt({pool, message}: Generi
     choices: [
       {name: 'Custom Address (Enter Manually)', value: 'custom'},
       ...getAssets(pool).map((asset) => ({name: asset, value: asset})),
-      ...getSupplyAssets(pool).map((asset) => ({name: asset, value: asset}))
+      ...getSupplyAssets(pool).map((asset) => ({name: asset, value: asset})),
     ],
   });
 }
@@ -33,7 +34,7 @@ export async function supplyBorrowAssetsSelectPrompt({pool, message}: GenericPoo
   return await checkbox({
     message,
     choices: getSupplyBorrowAssets(pool).map((asset) => ({name: asset, value: asset})),
-    required: true
+    required: true,
   });
 }
 
@@ -46,7 +47,9 @@ export async function supplyBorrowAssetSelectPrompt({pool, message}: GenericPool
 
 export function translateAssetToOracleLibUnderlying(value: string, pool: PoolIdentifier) {
   const isSupplyAsset: boolean = value.includes('_aToken');
-  return isSupplyAsset ? `${pool}Assets.${value.replace('_aToken', '')}_ORACLE` : `${pool}Assets.${value}_ORACLE`;
+  return isSupplyAsset
+    ? `${pool}Assets.${value.replace('_aToken', '')}_ORACLE`
+    : `${pool}Assets.${value}_ORACLE`;
 }
 
 export function translateAssetToAssetLibUnderlying(value: string, pool: PoolIdentifier) {
@@ -64,6 +67,8 @@ export function translateAssetToAssetLibUnderlying(value: string, pool: PoolIden
 
 export function translateSupplyBorrowAssetToWhaleConstant(value: string, pool: PoolIdentifier) {
   const isBorrowAsset: boolean = value.includes('_variableDebtToken');
-  const underlyingAsset = isBorrowAsset ? value.replace('_variableDebtToken', '') : value.replace('_aToken', '');
+  const underlyingAsset = isBorrowAsset
+    ? value.replace('_variableDebtToken', '')
+    : value.replace('_aToken', '');
   return isBorrowAsset ? `v${underlyingAsset}_WHALE` : `a${underlyingAsset}_WHALE`;
 }

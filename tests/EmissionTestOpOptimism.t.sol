@@ -7,11 +7,14 @@ import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregato
 import {LMSetupBaseTest} from './utils/LMSetupBaseTest.sol';
 
 contract EmissionTestOpOptimism is LMSetupBaseTest {
-  address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Optimism.DEFAULT_INCENTIVES_CONTROLLER;
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER =
+    AaveV3Optimism.DEFAULT_INCENTIVES_CONTROLLER;
   address public constant override REWARD_ASSET = 0x4200000000000000000000000000000000000042; // OP
   uint256 public constant override TOTAL_DISTRIBUTION = 5_000_000 ether; // 5m OP
-  ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x80B2a024A0f347e774ec3bc58304978FB3DFc940);
-  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
+  ITransferStrategyBase public constant override TRANSFER_STRATEGY =
+    ITransferStrategyBase(0x80B2a024A0f347e774ec3bc58304978FB3DFc940);
+  IEACAggregatorProxy public constant override REWARD_ORACLE =
+    IEACAggregatorProxy(0x0D276FC14719f9292D5C1eA2198673d1f4269246); // OP/USD
 
   address constant EMISSION_ADMIN = 0x2501c477D0A35545a387Aa4A3EEe4292A9a8B3F0;
   uint88 constant DURATION_DISTRIBUTION = 90 days;
@@ -28,11 +31,19 @@ contract EmissionTestOpOptimism is LMSetupBaseTest {
     IEmissionManager(AaveV3Optimism.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
 
     emit log_bytes(
-      abi.encodeWithSelector(IEmissionManager(AaveV3Optimism.EMISSION_MANAGER).configureAssets.selector, _getAssetConfigs())
+      abi.encodeWithSelector(
+        IEmissionManager(AaveV3Optimism.EMISSION_MANAGER).configureAssets.selector,
+        _getAssetConfigs()
+      )
     );
   }
 
-  function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
+  function _getAssetConfigs()
+    internal
+    view
+    override
+    returns (RewardsDataTypes.RewardsConfigInput[] memory)
+  {
     uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
 
     EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
@@ -54,7 +65,7 @@ contract EmissionTestOpOptimism is LMSetupBaseTest {
     return configs;
   }
 
-  function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
+  function _getEmissionsPerAsset() internal pure override returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](13);
     emissionsPerAsset[0] = EmissionPerAsset({
       asset: 0x625E7708f30cA75bfd92586e17077590C60eb4cD, // aOptUSDC

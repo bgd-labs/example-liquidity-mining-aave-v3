@@ -2,17 +2,30 @@ import * as addressBook from '@bgd-labs/aave-address-book';
 import {Hex} from 'viem';
 import {CodeArtifact, FEATURE, FeatureModule} from '../types';
 import {LiquidityMiningSetup} from './types';
-import {supplyUnderlyingAssetsSelectPrompt, supplyBorrowAssetsSelectPrompt, translateAssetToOracleLibUnderlying, translateAssetToAssetLibUnderlying, translateSupplyBorrowAssetToWhaleConstant} from '../prompts/assetsSelectPrompt';
+import {
+  supplyUnderlyingAssetsSelectPrompt,
+  supplyBorrowAssetsSelectPrompt,
+  translateAssetToOracleLibUnderlying,
+  translateAssetToAssetLibUnderlying,
+  translateSupplyBorrowAssetToWhaleConstant,
+} from '../prompts/assetsSelectPrompt';
 import {addressPrompt} from '../prompts/addressPrompt';
 import {percentPrompt} from '../prompts/percentPrompt';
 import {numberPromptInDays} from '../prompts/numberPrompt';
-import {getTokenDecimals, getExplorerTokenHoldersLink, getAddressOfSupplyBorrowAsset, getPoolChain, CHAIN_TO_CHAIN_ID, calculateExpectedWhaleRewards} from '../common';
+import {
+  getTokenDecimals,
+  getExplorerTokenHoldersLink,
+  getAddressOfSupplyBorrowAsset,
+  getPoolChain,
+  CHAIN_TO_CHAIN_ID,
+  calculateExpectedWhaleRewards,
+} from '../common';
 
 export async function fetchLiquidityMiningSetupParams({pool}): Promise<LiquidityMiningSetup> {
   let rewardToken = await supplyUnderlyingAssetsSelectPrompt({
     message: 'Select the reward asset for the LM:',
     pool,
-    required: true
+    required: true,
   });
   let rewardOracle: string;
   let rewardTokenAddress: Hex;
@@ -29,8 +42,9 @@ export async function fetchLiquidityMiningSetupParams({pool}): Promise<Liquidity
     rewardTokenAddress = rewardToken as Hex;
   } else {
     rewardOracle = translateAssetToOracleLibUnderlying(rewardToken, pool);
-    rewardTokenAddress = rewardToken.includes('_aToken') ?
-      addressBook[pool].ASSETS[rewardToken.replace('_aToken', '')].A_TOKEN : addressBook[pool].ASSETS[rewardToken].UNDERLYING;
+    rewardTokenAddress = rewardToken.includes('_aToken')
+      ? addressBook[pool].ASSETS[rewardToken.replace('_aToken', '')].A_TOKEN
+      : addressBook[pool].ASSETS[rewardToken].UNDERLYING;
     rewardToken = translateAssetToAssetLibUnderlying(rewardToken, pool);
   }
   const emissionsAdmin = await addressPrompt({
@@ -40,16 +54,16 @@ export async function fetchLiquidityMiningSetupParams({pool}): Promise<Liquidity
 
   const distributionEnd = await numberPromptInDays({
     message: 'Enter the total distribution time for the LM in days:',
-    required: true
+    required: true,
   });
   const transferStrategy = await addressPrompt({
     message: 'Enter the address of the transfer strategy contract deployed:',
-    required: true
+    required: true,
   });
   const assets = await supplyBorrowAssetsSelectPrompt({
     message: 'Enter the assets for which the LM should be configured:',
     pool,
-    required: true
+    required: true,
   });
 
   const rewardAmounts: string[] = [];
@@ -62,17 +76,26 @@ export async function fetchLiquidityMiningSetupParams({pool}): Promise<Liquidity
   for (const index in assets) {
     const rewardAmount = await percentPrompt({
       message: `Enter the reward amount (in token units) for the reward token to be distributed for ${assets[index]}`,
-      required: true
+      required: true,
     });
     totalReward += Number(rewardAmount);
     const supplyBorrowAssetAddress = getAddressOfSupplyBorrowAsset(pool, assets[index]);
     const whaleAddress = await addressPrompt({
-      message: `Enter the whale address to test rewards for ${assets[index]} from ${getExplorerTokenHoldersLink(chainId, supplyBorrowAssetAddress)} `,
-      required: true
+      message: `Enter the whale address to test rewards for ${
+        assets[index]
+      } from ${getExplorerTokenHoldersLink(chainId, supplyBorrowAssetAddress)} `,
+      required: true,
     });
     rewardAmounts.push(rewardAmount);
     whaleAddresses.push(whaleAddress);
-    whaleExpectedRewards.push(await calculateExpectedWhaleRewards(whaleAddress, supplyBorrowAssetAddress, rewardAmount, chainId));
+    whaleExpectedRewards.push(
+      await calculateExpectedWhaleRewards(
+        whaleAddress,
+        supplyBorrowAssetAddress,
+        rewardAmount,
+        chainId
+      )
+    );
   }
 
   return {
@@ -87,7 +110,7 @@ export async function fetchLiquidityMiningSetupParams({pool}): Promise<Liquidity
     totalReward,
     whaleAddresses,
     whaleExpectedRewards,
-  }
+  };
 }
 
 export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
@@ -102,7 +125,9 @@ export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
     const response: CodeArtifact = {
       code: {
         constants: [
-          cfg.rewardToken.includes('0x') ? `address public constant override REWARD_ASSET = ${cfg.rewardToken};` : `address public constant override REWARD_ASSET = ${pool}Assets.${cfg.rewardToken}_UNDERLYING;`,
+          cfg.rewardToken.includes('0x')
+            ? `address public constant override REWARD_ASSET = ${cfg.rewardToken};`
+            : `address public constant override REWARD_ASSET = ${pool}Assets.${cfg.rewardToken}_UNDERLYING;`,
           `uint88 constant DURATION_DISTRIBUTION = ${cfg.distributionEnd} days;`,
           `uint256 public constant override TOTAL_DISTRIBUTION = ${cfg.totalReward} * 10 ** ${cfg.rewardTokenDecimals};`,
           `address constant EMISSION_ADMIN = ${cfg.emissionsAdmin};\n`,
@@ -110,9 +135,12 @@ export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
           `ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(${cfg.transferStrategy});\n`,
           `IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(${cfg.rewardOracle});\n`,
           ...cfg.assets.map((asset, index) => {
-            let whaleConstants = `address constant ${translateSupplyBorrowAssetToWhaleConstant(asset, pool)} = ${cfg.whaleAddresses[index]};`;
+            let whaleConstants = `address constant ${translateSupplyBorrowAssetToWhaleConstant(
+              asset,
+              pool
+            )} = ${cfg.whaleAddresses[index]};`;
             return whaleConstants;
-          })
+          }),
         ],
         fn: [
           `
@@ -136,7 +164,7 @@ export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
                   ${translateAssetToAssetLibUnderlying(assets, pool)},
                   DURATION_DISTRIBUTION,
                   ${cfg.whaleExpectedRewards[ix]} * 10 ** ${cfg.rewardTokenDecimals}
-                );`,
+                );`
               )
               .join('\n')}
           }
@@ -164,14 +192,16 @@ export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
             }
 
            function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
-            EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](${cfg.assets.length});
+            EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](${
+              cfg.assets.length
+            });
             ${cfg.assets
               .map(
                 (assets, ix) => `
                 emissionsPerAsset[${ix}] = EmissionPerAsset({
                   asset: ${translateAssetToAssetLibUnderlying(assets, pool)},
                   emission: ${cfg.rewardAmounts[ix]} * 10 ** ${cfg.rewardTokenDecimals}
-                });`,
+                });`
               )
               .join('\n')}
 
@@ -183,7 +213,7 @@ export const setupLiquidityMining: FeatureModule<LiquidityMiningSetup> = {
 
             return emissionsPerAsset;
           }
-          `
+          `,
         ],
       },
     };

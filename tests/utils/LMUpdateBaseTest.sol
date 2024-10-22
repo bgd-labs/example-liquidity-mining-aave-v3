@@ -52,7 +52,8 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
   }
 
   function test_transferStrategyHasSufficientAllowance() public {
-    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
+    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER())
+      .getTransferStrategy(this.REWARD_ASSET());
     address rewardsVault = ITransferStrategyBase(transferStrategy).getRewardsVault();
     uint256 allowance = IERC20(this.REWARD_ASSET()).allowance(rewardsVault, transferStrategy);
 
@@ -60,7 +61,8 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
   }
 
   function test_rewardsVaultHasSufficientBalance() public {
-    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
+    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER())
+      .getTransferStrategy(this.REWARD_ASSET());
     address rewardsVault = ITransferStrategyBase(transferStrategy).getRewardsVault();
     uint256 balance = IERC20(this.REWARD_ASSET()).balanceOf(rewardsVault);
 
@@ -74,7 +76,10 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
     assertGt(distributionEnds.newDistributionEnd, block.timestamp - 1 hours);
 
     for (uint i = 0; i < emissionsPerAsset.rewards.length; i++) {
-      _validateIndexDoesNotOverflow(emissionsPerAsset.asset, emissionsPerAsset.newEmissionsPerSecond[i]);
+      _validateIndexDoesNotOverflow(
+        emissionsPerAsset.asset,
+        emissionsPerAsset.newEmissionsPerSecond[i]
+      );
       _validateIndexNotZero(emissionsPerAsset.asset, emissionsPerAsset.newEmissionsPerSecond[i]);
     }
   }
@@ -82,7 +87,12 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
   function _validateIndexDoesNotOverflow(address asset, uint256 emissionPerSecond) internal {
     uint256 maxTimeDelta = block.timestamp;
     uint256 totalSupplyLowerBound = 100 * (10 ** IERC20(asset).decimals()); // 100 asset unit
-    uint256 index = _calcualteAssetIndex(asset, maxTimeDelta, emissionPerSecond, totalSupplyLowerBound);
+    uint256 index = _calcualteAssetIndex(
+      asset,
+      maxTimeDelta,
+      emissionPerSecond,
+      totalSupplyLowerBound
+    );
 
     assertLt(index, type(uint104).max / 1_000);
   }
@@ -90,14 +100,23 @@ abstract contract LMUpdateBaseTest is LMBaseTest {
   function _validateIndexNotZero(address asset, uint256 emissionPerSecond) internal {
     uint256 timeDeltaLowerBound = 1;
     uint256 maxTotalSupply = IScaledBalanceToken(asset).scaledTotalSupply() * 1_000; // 1000 times the current totalSupply
-    uint256 index = _calcualteAssetIndex(asset, timeDeltaLowerBound, emissionPerSecond, maxTotalSupply);
+    uint256 index = _calcualteAssetIndex(
+      asset,
+      timeDeltaLowerBound,
+      emissionPerSecond,
+      maxTotalSupply
+    );
 
     assertGt(index, 100);
   }
 
-  function _getNewDistributionEnd() internal virtual view returns (NewDistributionEndPerAsset memory);
+  function _getNewDistributionEnd()
+    internal
+    view
+    virtual
+    returns (NewDistributionEndPerAsset memory);
 
-  function _getNewEmissionPerSecond() internal virtual pure returns (NewEmissionPerAsset memory);
+  function _getNewEmissionPerSecond() internal pure virtual returns (NewEmissionPerAsset memory);
 
   function NEW_TOTAL_DISTRIBUTION() external virtual returns (uint256);
 

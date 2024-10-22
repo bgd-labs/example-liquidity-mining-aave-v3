@@ -1,8 +1,5 @@
 import * as addressBook from '@bgd-labs/aave-address-book';
-import {
-  LiquidityMiningSetup,
-  LiquidityMiningUpdate,
-} from './features/types';
+import {LiquidityMiningSetup, LiquidityMiningUpdate} from './features/types';
 
 export const V3_POOLS = [
   'AaveV3Ethereum',
@@ -20,9 +17,7 @@ export const V3_POOLS = [
   'AaveV3ZkSync',
 ] as const satisfies readonly (keyof typeof addressBook)[];
 
-export const POOLS = [
-  ...V3_POOLS,
-] as const satisfies readonly (keyof typeof addressBook)[];
+export const POOLS = [...V3_POOLS] as const satisfies readonly (keyof typeof addressBook)[];
 
 export type PoolIdentifier = (typeof POOLS)[number];
 export type PoolIdentifierV3 = (typeof V3_POOLS)[number];

@@ -17,11 +17,7 @@ contract AddEmissionAdminPayload is IProposalGenericExecutor {
 
   address public immutable EMISSION_ADMIN;
 
-  constructor(
-    IEmissionManager emissionManager,
-    address reward,
-    address emissionAdmin
-  ) {
+  constructor(IEmissionManager emissionManager, address reward, address emissionAdmin) {
     EMISSION_MANAGER = emissionManager;
     REWARD = reward;
     EMISSION_ADMIN = emissionAdmin;

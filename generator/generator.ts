@@ -26,7 +26,7 @@ export async function generateFiles(options: Options, poolConfigs: PoolConfigs):
         return acc;
       }, {}),
     } as ConfigFile)}`,
-    {...prettierTsCfg, filepath: 'foo.ts'},
+    {...prettierTsCfg, filepath: 'foo.ts'}
   );
 
   async function createPayloadTest(options: Options, pool: PoolIdentifier) {
@@ -36,12 +36,14 @@ export async function generateFiles(options: Options, poolConfigs: PoolConfigs):
     return {
       pool,
       payloadTest: await prettier.format(
-        isLMSetup ? liquidityMiningSetupTemplate(options, poolConfigs[pool]!, pool)
+        isLMSetup
+          ? liquidityMiningSetupTemplate(options, poolConfigs[pool]!, pool)
           : liquidityMiningUpdateTemplate(options, poolConfigs[pool]!, pool),
         {
           ...prettierSolCfg,
           filepath: 'foo.sol',
-        }),
+        }
+      ),
       contractName: contractName,
     };
   }
@@ -91,6 +93,6 @@ export async function writeFiles(options: Options, {jsonConfig, payloadTest}: Fi
   await askBeforeWrite(
     options,
     path.join(baseFolder, `${payloadTest.contractName}.t.sol`),
-    payloadTest.payloadTest,
+    payloadTest.payloadTest
   );
 }

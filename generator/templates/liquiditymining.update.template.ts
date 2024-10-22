@@ -6,7 +6,7 @@ import {prefixWithPragma} from '../utils/constants';
 export const liquidityMiningUpdateTemplate = (
   options: Options,
   poolConfig: PoolConfig,
-  pool: PoolIdentifier,
+  pool: PoolIdentifier
 ) => {
   const chain = getPoolChain(pool);
   const contractName = generateContractName(options, pool);

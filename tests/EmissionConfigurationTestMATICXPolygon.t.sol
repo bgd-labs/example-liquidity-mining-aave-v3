@@ -8,7 +8,8 @@ import {IEmissionManager, ITransferStrategyBase} from '../src/interfaces/IEmissi
 import {LMUpdateBaseTest} from './utils/LMUpdateBaseTest.sol';
 
 contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
-  address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER =
+    AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
   address public constant override REWARD_ASSET = AaveV3PolygonAssets.MaticX_UNDERLYING;
   uint256 public constant override NEW_TOTAL_DISTRIBUTION = 30_000 ether;
   address public constant override EMISSION_MANAGER = AaveV3Polygon.EMISSION_MANAGER;
@@ -23,7 +24,8 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
     vm.createSelectFork(vm.rpcUrl('polygon'), 41047588);
 
     deal(REWARD_ASSET, EMISSION_ADMIN, NEW_TOTAL_DISTRIBUTION);
-    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).getTransferStrategy(this.REWARD_ASSET());
+    address transferStrategy = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER())
+      .getTransferStrategy(this.REWARD_ASSET());
     vm.prank(EMISSION_ADMIN);
     IERC20(REWARD_ASSET).approve(transferStrategy, NEW_TOTAL_DISTRIBUTION);
   }
@@ -52,7 +54,7 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
     );
   }
 
-  function _getNewEmissionPerSecond() internal override pure returns (NewEmissionPerAsset memory) {
+  function _getNewEmissionPerSecond() internal pure override returns (NewEmissionPerAsset memory) {
     NewEmissionPerAsset memory newEmissionPerAsset;
 
     address[] memory rewards = new address[](1);
@@ -67,7 +69,12 @@ contract EmissionConfigurationTestMATICXPolygon is LMUpdateBaseTest {
     return newEmissionPerAsset;
   }
 
-  function _getNewDistributionEnd() internal override view returns (NewDistributionEndPerAsset memory) {
+  function _getNewDistributionEnd()
+    internal
+    view
+    override
+    returns (NewDistributionEndPerAsset memory)
+  {
     NewDistributionEndPerAsset memory newDistributionEndPerAsset;
 
     newDistributionEndPerAsset.asset = AaveV3PolygonAssets.WPOL_V_TOKEN;

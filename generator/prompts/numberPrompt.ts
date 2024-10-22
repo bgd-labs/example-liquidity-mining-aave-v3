@@ -31,7 +31,7 @@ export async function numberPrompt({message, required}: GenericPrompt, opts?) {
       pattern: /^[0-9]*$/,
       patternError: 'Only full numbers are allowed',
     },
-    opts,
+    opts
   );
 }
 
@@ -47,7 +47,7 @@ export async function numberPromptInDays({message, required}: GenericPrompt, opt
       pattern: /^[0-9]*$/,
       patternError: 'Only full numbers are allowed',
     },
-    opts,
+    opts
   );
 }
 

@@ -16,7 +16,7 @@ import {
 import {Hex, getAddress, getContract} from 'viem';
 import {CHAIN_ID_CLIENT_MAP} from '@bgd-labs/js-utils';
 import {IERC20Detailed_ABI} from '@bgd-labs/aave-address-book/abis';
-import BigNumber from "bignumber.js";
+import BigNumber from 'bignumber.js';
 
 export const AVAILABLE_CHAINS = [
   'Ethereum',
@@ -62,11 +62,20 @@ export function getSupplyBorrowAssets(pool: PoolIdentifier): string[] {
 
 export function getAddressOfSupplyBorrowAsset(pool: PoolIdentifier, asset: string): Hex {
   const isBorrowAsset: boolean = asset.includes('_variableDebtToken');
-  const underlyingAsset = isBorrowAsset ? asset.replace('_variableDebtToken', '') : asset.replace('_aToken', '');
-  return isBorrowAsset ? addressBook[pool].ASSETS[underlyingAsset].V_TOKEN : addressBook[pool].ASSETS[underlyingAsset].A_TOKEN;
+  const underlyingAsset = isBorrowAsset
+    ? asset.replace('_variableDebtToken', '')
+    : asset.replace('_aToken', '');
+  return isBorrowAsset
+    ? addressBook[pool].ASSETS[underlyingAsset].V_TOKEN
+    : addressBook[pool].ASSETS[underlyingAsset].A_TOKEN;
 }
 
-export async function calculateExpectedWhaleRewards(whaleAddress: Hex, asset: Hex, rewardAmount: string, chainId: number) {
+export async function calculateExpectedWhaleRewards(
+  whaleAddress: Hex,
+  asset: Hex,
+  rewardAmount: string,
+  chainId: number
+) {
   const assetContract = getContract({
     abi: IERC20Detailed_ABI,
     client: CHAIN_ID_CLIENT_MAP[chainId],
@@ -75,7 +84,9 @@ export async function calculateExpectedWhaleRewards(whaleAddress: Hex, asset: He
   const assetTotalSupply = await assetContract.read.totalSupply();
   const whaleBalance = await assetContract.read.balanceOf([whaleAddress]);
 
-  const whaleRewardsShare = new BigNumber(whaleBalance.toString()).div(new BigNumber(assetTotalSupply.toString()));
+  const whaleRewardsShare = new BigNumber(whaleBalance.toString()).div(
+    new BigNumber(assetTotalSupply.toString())
+  );
   return whaleRewardsShare.multipliedBy(new BigNumber(rewardAmount)).decimalPlaces(2).toString();
 }
 
@@ -127,13 +138,9 @@ export function getDate() {
  */
 export function generateFolderName(options: Options) {
   const isLMSetup = options.feature == 'SETUP_LM';
-  return isLMSetup ? `${options.date}_LMSetup${options.pool}_${
-    options.shortName
-  }` :
-  `${options.date}_LMUpdate${options.pool}_${
-    options.shortName
-  }`
-  ;
+  return isLMSetup
+    ? `${options.date}_LMSetup${options.pool}_${options.shortName}`
+    : `${options.date}_LMUpdate${options.pool}_${options.shortName}`;
 }
 
 /**

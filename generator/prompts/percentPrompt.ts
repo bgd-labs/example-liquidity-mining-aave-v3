@@ -7,18 +7,16 @@ function isNumber(value: string) {
 
 export function transformNumberToPercent(value: string) {
   if (value && isNumber(value)) {
-    return (
-      new Intl.NumberFormat('en-us', {
-        maximumFractionDigits: 4,
-      }).format(value as unknown as number)
-    );
+    return new Intl.NumberFormat('en-us', {
+      maximumFractionDigits: 4,
+    }).format(value as unknown as number);
   }
   return value;
 }
 
 export async function percentPrompt<T extends boolean>(
   {message, required}: GenericPrompt<T>,
-  opts?,
+  opts?
 ): Promise<string> {
   const value = await advancedInput(
     {
@@ -31,7 +29,7 @@ export async function percentPrompt<T extends boolean>(
       pattern: /^[0-9]*\.?[0-9]*$/,
       patternError: 'Only decimal numbers are allowed (e.g. 1.1)',
     },
-    opts,
+    opts
   );
   return value;
 }

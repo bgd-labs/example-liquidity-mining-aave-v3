@@ -58,12 +58,8 @@ abstract contract LMBaseTest is Test {
 
     // rewards claimed after 5 mins should not be 0
     vm.warp(block.timestamp + 5 minutes);
-    uint256 rewardsAfterFewMins = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER()).claimRewards(
-      assets,
-      type(uint256).max,
-      whale,
-      this.REWARD_ASSET()
-    );
+    uint256 rewardsAfterFewMins = IAaveIncentivesController(this.DEFAULT_INCENTIVES_CONTROLLER())
+      .claimRewards(assets, type(uint256).max, whale, this.REWARD_ASSET());
     assertGt(rewardsAfterFewMins, 0);
 
     vm.warp(block.timestamp + timeAfterToClaim);

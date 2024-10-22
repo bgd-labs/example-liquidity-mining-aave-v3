@@ -6,7 +6,7 @@ export const MOCK_OPTIONS_SETUP: Options = {
   title: 'test',
   shortName: 'Test',
   date: '20231023',
-  feature: FEATURE.SETUP_LM
+  feature: FEATURE.SETUP_LM,
 };
 
 export const MOCK_OPTIONS_UPDATE: Options = {
@@ -14,7 +14,7 @@ export const MOCK_OPTIONS_UPDATE: Options = {
   title: 'test',
   shortName: 'Test',
   date: '20231023',
-  feature: FEATURE.UPDATE_LM
+  feature: FEATURE.UPDATE_LM,
 };
 
 export const liquidityMiningSetupConfig: LiquidityMiningSetup = {
@@ -29,7 +29,7 @@ export const liquidityMiningSetupConfig: LiquidityMiningSetup = {
   totalReward: 100,
   whaleAddresses: ['0x07833EAdF87CD3079da281395f2fBA24b61F90f7'],
   whaleExpectedRewards: ['21.6'],
-}
+};
 
 export const liquidityMiningUpdateConfig: LiquidityMiningUpdate = {
   emissionsAdmin: '0xac140648435d03f784879cd789130F22Ef588Fcd',
@@ -40,4 +40,4 @@ export const liquidityMiningUpdateConfig: LiquidityMiningUpdate = {
   rewardAmount: '150',
   whaleAddress: '0x07833EAdF87CD3079da281395f2fBA24b61F90f7',
   whaleExpectedReward: '32.4',
-}
+};

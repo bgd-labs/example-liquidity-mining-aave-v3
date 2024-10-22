@@ -20,7 +20,10 @@ abstract contract LMSetupBaseTest is LMBaseTest {
 
   function test_transferStrategyHasSufficientAllowance() public {
     address rewardsVault = this.TRANSFER_STRATEGY().getRewardsVault();
-    uint256 allowance = IERC20(this.REWARD_ASSET()).allowance(rewardsVault, address(this.TRANSFER_STRATEGY()));
+    uint256 allowance = IERC20(this.REWARD_ASSET()).allowance(
+      rewardsVault,
+      address(this.TRANSFER_STRATEGY())
+    );
 
     assertGe(allowance, this.TOTAL_DISTRIBUTION());
   }
@@ -37,10 +40,17 @@ abstract contract LMSetupBaseTest is LMBaseTest {
     assertGt(uint256(rewardPrice), 0);
   }
 
-  function _validateIndexDoesNotOverflow(RewardsDataTypes.RewardsConfigInput memory rewardConfig) internal {
+  function _validateIndexDoesNotOverflow(
+    RewardsDataTypes.RewardsConfigInput memory rewardConfig
+  ) internal {
     uint256 maxTimeDelta = block.timestamp;
     uint256 totalSupplyLowerBound = 100 * (10 ** IERC20(rewardConfig.asset).decimals()); // 100 asset unit
-    uint256 index = _calcualteAssetIndex(rewardConfig.asset, maxTimeDelta, rewardConfig.emissionPerSecond, totalSupplyLowerBound);
+    uint256 index = _calcualteAssetIndex(
+      rewardConfig.asset,
+      maxTimeDelta,
+      rewardConfig.emissionPerSecond,
+      totalSupplyLowerBound
+    );
 
     assertLt(index, type(uint104).max / 1_000);
   }
@@ -48,14 +58,23 @@ abstract contract LMSetupBaseTest is LMBaseTest {
   function _validateIndexNotZero(RewardsDataTypes.RewardsConfigInput memory rewardConfig) internal {
     uint256 timeDeltaLowerBound = 1;
     uint256 maxTotalSupply = IScaledBalanceToken(rewardConfig.asset).scaledTotalSupply() * 1_000; // 1000 times the current totalSupply
-    uint256 index = _calcualteAssetIndex(rewardConfig.asset, timeDeltaLowerBound, rewardConfig.emissionPerSecond, maxTotalSupply);
+    uint256 index = _calcualteAssetIndex(
+      rewardConfig.asset,
+      timeDeltaLowerBound,
+      rewardConfig.emissionPerSecond,
+      maxTotalSupply
+    );
 
     assertGt(index, 100);
   }
 
-  function _getEmissionsPerAsset() virtual internal pure returns (EmissionPerAsset[] memory);
+  function _getEmissionsPerAsset() internal pure virtual returns (EmissionPerAsset[] memory);
 
-  function _getAssetConfigs() virtual internal view returns (RewardsDataTypes.RewardsConfigInput[] memory);
+  function _getAssetConfigs()
+    internal
+    view
+    virtual
+    returns (RewardsDataTypes.RewardsConfigInput[] memory);
 
   function TRANSFER_STRATEGY() external virtual returns (ITransferStrategyBase);
 

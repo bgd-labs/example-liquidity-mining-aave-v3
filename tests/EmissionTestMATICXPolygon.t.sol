@@ -8,12 +8,15 @@ import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregato
 import {LMSetupBaseTest} from './utils/LMSetupBaseTest.sol';
 
 contract EmissionTestMATICXPolygon is LMSetupBaseTest {
-  address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER =
+    AaveV3Polygon.DEFAULT_INCENTIVES_CONTROLLER;
   address public constant override REWARD_ASSET = AaveV3PolygonAssets.MaticX_UNDERLYING;
   uint256 public constant override TOTAL_DISTRIBUTION = 60_000 ether; // 10'000 MATICX/month, 6 months
   /// @dev already deployed and configured for the both the MATICX asset and the 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263 EMISSION_ADMIN
-  ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x53F57eAAD604307889D87b747Fc67ea9DE430B01);
-  IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(AaveV3PolygonAssets.MaticX_ORACLE);
+  ITransferStrategyBase public constant override TRANSFER_STRATEGY =
+    ITransferStrategyBase(0x53F57eAAD604307889D87b747Fc67ea9DE430B01);
+  IEACAggregatorProxy public constant override REWARD_ORACLE =
+    IEACAggregatorProxy(AaveV3PolygonAssets.MaticX_ORACLE);
 
   uint88 public constant DURATION_DISTRIBUTION = 180 days;
   address constant EMISSION_ADMIN = 0x0c54a0BCCF5079478a144dBae1AFcb4FEdf7b263; // Polygon Foundation
@@ -50,7 +53,12 @@ contract EmissionTestMATICXPolygon is LMSetupBaseTest {
     );
   }
 
-  function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
+  function _getAssetConfigs()
+    internal
+    view
+    override
+    returns (RewardsDataTypes.RewardsConfigInput[] memory)
+  {
     uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
 
     EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
@@ -72,10 +80,10 @@ contract EmissionTestMATICXPolygon is LMSetupBaseTest {
     return configs;
   }
 
-  function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
+  function _getEmissionsPerAsset() internal pure override returns (EmissionPerAsset[] memory) {
     EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
     emissionsPerAsset[0] = EmissionPerAsset({
-      asset: AaveV3PolygonAssets.WPOL_V_TOKEN ,
+      asset: AaveV3PolygonAssets.WPOL_V_TOKEN,
       emission: TOTAL_DISTRIBUTION // 100% of the distribution
     });
 
