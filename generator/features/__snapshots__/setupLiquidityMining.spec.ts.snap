@@ -1,0 +1,219 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`feature: setupLiquidityMining > should properly generate files 1`] = `
+{
+  "jsonConfig": "import {ConfigFile} from '../../generator/types';
+export const config: ConfigFile = {
+  rootOptions: {
+    pool: 'AaveV3EthereumLido',
+    title: 'test',
+    shortName: 'Test',
+    date: '20231023',
+    feature: 'SETUP_LM',
+  },
+  poolOptions: {
+    AaveV3EthereumLido: {
+      configs: {
+        SETUP_LM: {
+          emissionsAdmin: '0xac140648435d03f784879cd789130F22Ef588Fcd',
+          rewardToken: 'AaveV3EthereumLidoAssets.wstETH_A_TOKEN',
+          rewardTokenDecimals: 18,
+          rewardOracle: 'AaveV3EthereumLidoAssets.wstETH_ORACLE',
+          assets: ['wstETH_aToken'],
+          distributionEnd: '14',
+          transferStrategy: '0x0605a898535E9116Ff820347c536E3442F216Eb8',
+          rewardAmounts: ['100'],
+          totalReward: 100,
+          whaleAddresses: ['0x07833EAdF87CD3079da281395f2fBA24b61F90f7'],
+          whaleExpectedRewards: ['21.6'],
+        },
+      },
+      cache: {blockNumber: 42},
+    },
+  },
+};
+",
+  "payloadTest": {
+    "contractName": "AaveV3EthereumLido_LMSetupTest_20231023",
+    "payloadTest": "// SPDX-License-Identifier: MIT
+pragma solidity ^0.8.0;
+
+import {AaveV3EthereumLido, AaveV3EthereumLidoAssets} from 'aave-address-book/AaveV3EthereumLido.sol';
+import {IEmissionManager, ITransferStrategyBase, RewardsDataTypes, IEACAggregatorProxy} from '../../src/interfaces/IEmissionManager.sol';
+import {LMSetupBaseTest} from '../utils/LMSetupBaseTest.sol';
+
+contract AaveV3EthereumLido_LMSetupTest_20231023 is LMSetupBaseTest {
+  address public constant override REWARD_ASSET =
+    AaveV3EthereumLidoAssets.AaveV3EthereumLidoAssets.wstETH_A_TOKEN_UNDERLYING;
+  uint88 constant DURATION_DISTRIBUTION = 14 days;
+  uint256 public constant override TOTAL_DISTRIBUTION = 100 * 10 ** 18;
+  address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd;
+
+  address public constant override DEFAULT_INCENTIVES_CONTROLLER =
+    AaveV3EthereumLido.DEFAULT_INCENTIVES_CONTROLLER;
+
+  ITransferStrategyBase public constant override TRANSFER_STRATEGY =
+    ITransferStrategyBase(0x0605a898535E9116Ff820347c536E3442F216Eb8);
+
+  IEACAggregatorProxy public constant override REWARD_ORACLE =
+    IEACAggregatorProxy(AaveV3EthereumLidoAssets.wstETH_ORACLE);
+
+  address constant awstETH_WHALE = 0x07833EAdF87CD3079da281395f2fBA24b61F90f7;
+
+  function setUp() public {
+    vm.createSelectFork(vm.rpcUrl('mainnet'), 42);
+  }
+
+  function test_activation() public {
+    vm.prank(EMISSION_ADMIN);
+    IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
+
+    emit log_named_bytes(
+      'calldata to submit from Gnosis Safe',
+      abi.encodeWithSelector(
+        IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).configureAssets.selector,
+        _getAssetConfigs()
+      )
+    );
+
+    _testClaimRewardsForWhale(
+      awstETH_WHALE,
+      AaveV3EthereumLidoAssets.wstETH_A_TOKEN,
+      DURATION_DISTRIBUTION,
+      21.6 * 10 ** 18
+    );
+  }
+
+  function _getAssetConfigs()
+    internal
+    view
+    override
+    returns (RewardsDataTypes.RewardsConfigInput[] memory)
+  {
+    uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
+
+    EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
+
+    RewardsDataTypes.RewardsConfigInput[]
+      memory configs = new RewardsDataTypes.RewardsConfigInput[](emissionsPerAsset.length);
+    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
+      configs[i] = RewardsDataTypes.RewardsConfigInput({
+        emissionPerSecond: _toUint88(emissionsPerAsset[i].emission / DURATION_DISTRIBUTION),
+        totalSupply: 0, // IMPORTANT this will not be taken into account by the contracts, so 0 is fine
+        distributionEnd: distributionEnd,
+        asset: emissionsPerAsset[i].asset,
+        reward: REWARD_ASSET,
+        transferStrategy: TRANSFER_STRATEGY,
+        rewardOracle: REWARD_ORACLE
+      });
+    }
+
+    return configs;
+  }
+
+  function _getEmissionsPerAsset() internal pure override returns (EmissionPerAsset[] memory) {
+    EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
+
+    emissionsPerAsset[0] = EmissionPerAsset({
+      asset: AaveV3EthereumLidoAssets.wstETH_A_TOKEN,
+      emission: 100 * 10 ** 18
+    });
+
+    uint256 totalDistribution;
+    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
+      totalDistribution += emissionsPerAsset[i].emission;
+    }
+    require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
+
+    return emissionsPerAsset;
+  }
+}
+",
+    "pool": "AaveV3EthereumLido",
+  },
+}
+`;
+
+exports[`feature: setupLiquidityMining > should return reasonable code 1`] = `
+{
+  "code": {
+    "constants": [
+      "address public constant override REWARD_ASSET = AaveV3EthereumLidoAssets.AaveV3EthereumLidoAssets.wstETH_A_TOKEN_UNDERLYING;",
+      "uint88 constant DURATION_DISTRIBUTION = 14 days;",
+      "uint256 public constant override TOTAL_DISTRIBUTION = 100 * 10 ** 18;",
+      "address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd;
+",
+      "address public constant override DEFAULT_INCENTIVES_CONTROLLER = AaveV3EthereumLido.DEFAULT_INCENTIVES_CONTROLLER;
+",
+      "ITransferStrategyBase public constant override TRANSFER_STRATEGY = ITransferStrategyBase(0x0605a898535E9116Ff820347c536E3442F216Eb8);
+",
+      "IEACAggregatorProxy public constant override REWARD_ORACLE = IEACAggregatorProxy(AaveV3EthereumLidoAssets.wstETH_ORACLE);
+",
+      "address constant awstETH_WHALE = 0x07833EAdF87CD3079da281395f2fBA24b61F90f7;",
+    ],
+    "fn": [
+      "
+          function test_activation() public {
+            vm.prank(EMISSION_ADMIN);
+            IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
+
+            emit log_named_bytes(
+              'calldata to submit from Gnosis Safe',
+              abi.encodeWithSelector(
+                IEmissionManager(AaveV3EthereumLido.EMISSION_MANAGER).configureAssets.selector,
+                _getAssetConfigs()
+              )
+            );
+
+            
+                _testClaimRewardsForWhale(
+                  awstETH_WHALE,
+                  AaveV3EthereumLidoAssets.wstETH_A_TOKEN,
+                  DURATION_DISTRIBUTION,
+                  21.6 * 10 ** 18
+                );
+          }
+
+            function _getAssetConfigs() internal override view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
+              uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
+
+              EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
+
+              RewardsDataTypes.RewardsConfigInput[]
+                memory configs = new RewardsDataTypes.RewardsConfigInput[](emissionsPerAsset.length);
+              for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
+                configs[i] = RewardsDataTypes.RewardsConfigInput({
+                  emissionPerSecond: _toUint88(emissionsPerAsset[i].emission / DURATION_DISTRIBUTION),
+                  totalSupply: 0, // IMPORTANT this will not be taken into account by the contracts, so 0 is fine
+                  distributionEnd: distributionEnd,
+                  asset: emissionsPerAsset[i].asset,
+                  reward: REWARD_ASSET,
+                  transferStrategy: TRANSFER_STRATEGY,
+                  rewardOracle: REWARD_ORACLE
+                });
+              }
+
+              return configs;
+            }
+
+           function _getEmissionsPerAsset() internal override pure returns (EmissionPerAsset[] memory) {
+            EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](1);
+            
+                emissionsPerAsset[0] = EmissionPerAsset({
+                  asset: AaveV3EthereumLidoAssets.wstETH_A_TOKEN,
+                  emission: 100 * 10 ** 18
+                });
+
+            uint256 totalDistribution;
+            for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
+              totalDistribution += emissionsPerAsset[i].emission;
+            }
+            require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
+
+            return emissionsPerAsset;
+          }
+          ",
+    ],
+  },
+}
+`;

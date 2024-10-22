@@ -2,6 +2,8 @@
   "name": "example-liquidity-mining-aave-v3",
   "version": "1.0.0",
   "scripts": {
+    "test": "vitest generator",
+    "generate": "tsx generator/cli",
     "lint": "prettier ./",
     "lint:fix": "npm run lint -- --write"
   },
@@ -9,6 +11,7 @@
     "type": "git",
     "url": "git+https://github.com/bgd-labs/example-liquidity-mining-aave-v3.git"
   },
+  "type": "module",
   "keywords": [],
   "author": "BGD labs",
   "license": "MIT",
@@ -16,7 +19,21 @@
     "url": "https://github.com/bgd-labs/example-liquidity-mining-aave-v3/issues"
   },
   "homepage": "https://github.com/bgd-labs/example-liquidity-mining-aave-v3#readme",
+  "dependencies": {
+    "@bgd-labs/aave-address-book": "4.0.0",
+    "@bgd-labs/aave-cli": "0.16.4",
+    "@bgd-labs/js-utils": "^1.4.2",
+    "@inquirer/prompts": "^3.3.0",
+    "@inquirer/testing": "^2.1.13",
+    "bignumber.js": "^9.1.2",
+    "commander": "^12.1.0",
+    "husky": "^8.0.3",
+    "lint-staged": "^15.2.7",
+    "tsx": "^4.16.3",
+    "viem": "^2.18.6"
+  },
   "devDependencies": {
+    "vitest": "^2.0.4",
     "prettier": "^2.8.3",
     "prettier-plugin-solidity": "^1.1.1"
   }
