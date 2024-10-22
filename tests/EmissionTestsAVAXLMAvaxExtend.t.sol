@@ -28,7 +28,7 @@ contract EmissionTestsAVAXLMAvaxExtend is BaseTest {
 
   struct EmissionPerAsset {
     address asset;
-    uint256 emission;
+    bytes data;
   }
 
   address constant EMISSION_ADMIN = 0xac140648435d03f784879cd789130F22Ef588Fcd; // ACI
@@ -63,15 +63,12 @@ contract EmissionTestsAVAXLMAvaxExtend is BaseTest {
     /// accrue more, but that is a decision of the emission's admin
     IERC20(REWARD_ASSET).approve(address(TRANSFER_STRATEGY), TOTAL_DISTRIBUTION);
 
-    IEmissionManager(AaveV3Avalanche.EMISSION_MANAGER).configureAssets(_getAssetConfigs());
+    EmissionPerAsset[] memory newDistributionEnds = _getDistributionEnds();
 
-    emit log_named_bytes(
-      'calldata to submit from Gnosis Safe',
-      abi.encodeWithSelector(
-        IEmissionManager(AaveV3Avalanche.EMISSION_MANAGER).configureAssets.selector,
-        _getAssetConfigs()
-      )
-    );
+    for (uint256 i = 0; i < newDistributionEnds.length; i++) {
+      emit log_named_address('Asset: ', newDistributionEnds[i].asset);
+      emit log_named_bytes('newDistributionEnds calldata: ', newDistributionEnds[i].data);
+    }
 
     // vm.stopPrank();
     //vm.startPrank(wAVAX_WHALE);
@@ -86,7 +83,11 @@ contract EmissionTestsAVAXLMAvaxExtend is BaseTest {
     _testClaimRewardsForWhale(USDt_A_TOKEN_WHALE, USDt_A_TOKEN, 2 * 854 ether);
   }
 
-  function _testClaimRewardsForWhale(address whale, address asset, uint256 expectedReward) internal {
+  function _testClaimRewardsForWhale(
+    address whale,
+    address asset,
+    uint256 expectedReward
+  ) internal {
     vm.startPrank(whale);
 
     vm.warp(block.timestamp + 15 days);
@@ -116,44 +117,35 @@ contract EmissionTestsAVAXLMAvaxExtend is BaseTest {
     vm.stopPrank();
   }
 
-  function _getAssetConfigs() internal view returns (RewardsDataTypes.RewardsConfigInput[] memory) {
+  function _getDistributionEnds() internal returns (EmissionPerAsset[] memory) {
     uint32 distributionEnd = uint32(block.timestamp + DURATION_DISTRIBUTION);
 
-    EmissionPerAsset[] memory emissionsPerAsset = _getEmissionsPerAsset();
+    address[] memory assets = new address[](6);
+    assets[0] = BTCb_A_TOKEN;
+    assets[1] = WAVAX_V_TOKEN;
+    assets[2] = USDC_A_TOKEN;
+    assets[3] = USDC_V_TOKEN;
+    assets[4] = sAVAX_A_TOKEN;
+    assets[5] = USDt_A_TOKEN;
 
-    RewardsDataTypes.RewardsConfigInput[]
-      memory configs = new RewardsDataTypes.RewardsConfigInput[](emissionsPerAsset.length);
-    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
-      configs[i] = RewardsDataTypes.RewardsConfigInput({
-        emissionPerSecond: _toUint88(emissionsPerAsset[i].emission / DURATION_DISTRIBUTION),
-        totalSupply: 0, // IMPORTANT this will not be taken into account by the contracts, so 0 is fine
-        distributionEnd: distributionEnd,
-        asset: emissionsPerAsset[i].asset,
-        reward: REWARD_ASSET,
-        transferStrategy: TRANSFER_STRATEGY,
-        rewardOracle: REWARD_ORACLE
-      });
+    EmissionPerAsset[] memory newDistributionEnds = new EmissionPerAsset[](assets.length);
+    for (uint256 i = 0; i < assets.length; i++) {
+      IEmissionManager(AaveV3Avalanche.EMISSION_MANAGER).setDistributionEnd(
+        assets[i],
+        REWARD_ASSET,
+        distributionEnd
+      );
+      bytes memory data = abi.encodeWithSelector(
+        IEmissionManager.setDistributionEnd.selector,
+        assets[i],
+        REWARD_ASSET,
+        distributionEnd
+      );
+      EmissionPerAsset memory emissionPerAsset = EmissionPerAsset(assets[i], data);
+      newDistributionEnds[i] = emissionPerAsset;
     }
 
-    return configs;
-  }
-
-  function _getEmissionsPerAsset() internal pure returns (EmissionPerAsset[] memory) {
-    EmissionPerAsset[] memory emissionsPerAsset = new EmissionPerAsset[](6);
-    emissionsPerAsset[0] = EmissionPerAsset({asset: BTCb_A_TOKEN, emission: 2 * 1_708 ether});
-    emissionsPerAsset[1] = EmissionPerAsset({asset: WAVAX_V_TOKEN, emission: 2 * 427 ether});
-    emissionsPerAsset[2] = EmissionPerAsset({asset: USDC_A_TOKEN, emission: 2 * 1_708 ether});
-    emissionsPerAsset[3] = EmissionPerAsset({asset: USDC_V_TOKEN, emission: 2 * 427 ether});
-    emissionsPerAsset[4] = EmissionPerAsset({asset: sAVAX_A_TOKEN, emission: 2 * 427 ether});
-    emissionsPerAsset[5] = EmissionPerAsset({asset: USDt_A_TOKEN, emission: 2 * 854 ether});
-
-    uint256 totalDistribution;
-    for (uint256 i = 0; i < emissionsPerAsset.length; i++) {
-      totalDistribution += emissionsPerAsset[i].emission;
-    }
-    require(totalDistribution == TOTAL_DISTRIBUTION, 'INVALID_SUM_OF_EMISSIONS');
-
-    return emissionsPerAsset;
+    return newDistributionEnds;
   }
 
   function _toUint88(uint256 value) internal pure returns (uint88) {
