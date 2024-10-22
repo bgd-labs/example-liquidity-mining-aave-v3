@@ -78,6 +78,10 @@ contract EmissionTestStaderMainnet is BaseTest {
     uint256 expectedRewardPercentage
   ) internal {
     vm.startPrank(whale);
+    uint256 end = IAaveIncentivesController(
+      AaveV3Ethereum.DEFAULT_INCENTIVES_CONTROLLER
+    ).getDistributionEnd(asset, REWARD_ASSET);
+    uint256 extraTime = ((end - block.timestamp) * 10 ** 18 ) / (NEW_DURATION_DISTRIBUTION);
 
     address[] memory assets = new address[](1);
     assets[0] = asset;
@@ -86,7 +90,7 @@ contract EmissionTestStaderMainnet is BaseTest {
       AaveV3Ethereum.DEFAULT_INCENTIVES_CONTROLLER
     ).getUserRewards(assets, whale, REWARD_ASSET);
 
-    vm.warp(block.timestamp + NEW_DURATION_DISTRIBUTION);
+    vm.warp(end);
 
     uint256 balanceBefore = IERC20(REWARD_ASSET).balanceOf(whale);
 
@@ -100,7 +104,7 @@ contract EmissionTestStaderMainnet is BaseTest {
     uint256 balanceAfter = IERC20(REWARD_ASSET).balanceOf(whale);
 
     uint256 rewardsClaimed = balanceAfter - balanceBefore;
-    uint256 rewardsExpected = (TOTAL_DISTRIBUTION * expectedRewardPercentage) / 10 ** 18;
+    uint256 rewardsExpected = (TOTAL_DISTRIBUTION * extraTime * expectedRewardPercentage) / (10 ** 18 * 10 **18);
 
     emit log_named_uint('unclaimedRewards', unclaimedRewards);
     emit log_named_uint('rewardsClaimed', rewardsClaimed);
@@ -125,7 +129,9 @@ contract EmissionTestStaderMainnet is BaseTest {
     newDistributionEndPerAsset.asset = a_ETHx;
     newDistributionEndPerAsset.reward = REWARD_ASSET;
     newDistributionEndPerAsset.newDistributionEnd = _toUint32(
-      block.timestamp + NEW_DURATION_DISTRIBUTION
+     IAaveIncentivesController(
+      AaveV3Ethereum.DEFAULT_INCENTIVES_CONTROLLER
+    ).getDistributionEnd(a_ETHx, REWARD_ASSET) + NEW_DURATION_DISTRIBUTION
     );
 
     return newDistributionEndPerAsset;

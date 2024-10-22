@@ -8,6 +8,23 @@ interface IAaveIncentivesController {
     address reward
   ) external returns (uint256);
 
+  function getDistributionEnd(
+    address assets,
+    address reward
+  ) external view returns (uint256);
+
+  function getEmissionManager() external view returns (address);
+
+  function getRewardsData(
+    address asset,
+    address reward
+  ) external view returns (
+      uint256,
+      uint256,
+      uint256,
+      uint256
+  );
+
   function claimRewards(
     address[] calldata assets,
     uint256 amount,
