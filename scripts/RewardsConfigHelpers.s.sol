@@ -2,7 +2,7 @@
 pragma solidity ^0.8.0;
 
 import {Script} from 'forge-std/Script.sol';
-import {PullRewardsTransferStrategy} from 'aave-v3-origin/periphery/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol';
+import {PullRewardsTransferStrategy} from 'aave-v3-origin/contracts/rewards/transfer-strategies/PullRewardsTransferStrategy.sol';
 import {AaveV3Polygon} from 'aave-address-book/AaveV3Polygon.sol';
 
 contract SDDeployTransferStrategy is Script {

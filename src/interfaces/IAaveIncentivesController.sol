@@ -8,4 +8,6 @@ interface IAaveIncentivesController {
     address to,
     address reward
   ) external returns (uint256);
+
+  function getTransferStrategy(address reward) external view returns (address);
 }

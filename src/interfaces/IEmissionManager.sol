@@ -33,11 +33,7 @@ interface ITransferStrategyBase {
    * @param amount Amount to transfer to the "to" address parameter
    * @return Returns true bool if transfer logic succeeds
    */
-  function performTransfer(
-    address to,
-    address reward,
-    uint256 amount
-  ) external returns (bool);
+  function performTransfer(address to, address reward, uint256 amount) external returns (bool);
 
   /**
    * @return Returns the address of the Incentives Controller
@@ -50,16 +46,17 @@ interface ITransferStrategyBase {
   function getRewardsAdmin() external view returns (address);
 
   /**
+   * @return Returns the address of the Rewards vault
+   */
+  function getRewardsVault() external view returns (address);
+
+  /**
    * @dev Perform an emergency token withdrawal only callable by the Rewards admin
    * @param token Address of the token to withdraw funds from this contract
    * @param to Address of the recipient of the withdrawal
    * @param amount Amount of the withdrawal
    */
-  function emergencyWithdrawal(
-    address token,
-    address to,
-    uint256 amount
-  ) external;
+  function emergencyWithdrawal(address token, address to, uint256 amount) external;
 }
 
 library RewardsDataTypes {
@@ -160,11 +157,7 @@ interface IRewardsDistributor {
    * @param reward The reward token that incentives the asset
    * @param newDistributionEnd The end date of the incentivization, in unix time format
    **/
-  function setDistributionEnd(
-    address asset,
-    address reward,
-    uint32 newDistributionEnd
-  ) external;
+  function setDistributionEnd(address asset, address reward, uint32 newDistributionEnd) external;
 
   /**
    * @dev Sets the emission per second of a set of reward distributions
@@ -208,15 +201,10 @@ interface IRewardsDistributor {
    * @return The timestamp of the last update of the index
    * @return The timestamp of the distribution end
    **/
-  function getRewardsData(address asset, address reward)
-    external
-    view
-    returns (
-      uint256,
-      uint256,
-      uint256,
-      uint256
-    );
+  function getRewardsData(
+    address asset,
+    address reward
+  ) external view returns (uint256, uint256, uint256, uint256);
 
   /**
    * @dev Returns the list of available reward token addresses of an incentivized asset
@@ -259,10 +247,10 @@ interface IRewardsDistributor {
    * @return The list of reward addresses
    * @return The list of unclaimed amount of rewards
    **/
-  function getAllUserRewards(address[] calldata assets, address user)
-    external
-    view
-    returns (address[] memory, uint256[] memory);
+  function getAllUserRewards(
+    address[] calldata assets,
+    address user
+  ) external view returns (address[] memory, uint256[] memory);
 
   /**
    * @dev Returns the decimals of an asset to calculate the distribution delta
@@ -393,11 +381,7 @@ interface IRewardsController is IRewardsDistributor {
    * @param userBalance The user balance of the asset
    * @param totalSupply The total supply of the asset
    **/
-  function handleAction(
-    address user,
-    uint256 userBalance,
-    uint256 totalSupply
-  ) external;
+  function handleAction(address user, uint256 userBalance, uint256 totalSupply) external;
 
   /**
    * @dev Claims reward for a user to the desired address, on all the assets of the pool, accumulating the pending rewards
@@ -452,9 +436,10 @@ interface IRewardsController is IRewardsDistributor {
    * @return rewardsList List of addresses of the reward tokens
    * @return claimedAmounts List that contains the claimed amount per reward, following same order as "rewardList"
    **/
-  function claimAllRewards(address[] calldata assets, address to)
-    external
-    returns (address[] memory rewardsList, uint256[] memory claimedAmounts);
+  function claimAllRewards(
+    address[] calldata assets,
+    address to
+  ) external returns (address[] memory rewardsList, uint256[] memory claimedAmounts);
 
   /**
    * @dev Claims all rewards for a user on behalf, on all the assets of the pool, accumulating the pending rewards. The caller must
@@ -477,9 +462,9 @@ interface IRewardsController is IRewardsDistributor {
    * @return rewardsList List of addresses of the reward tokens
    * @return claimedAmounts List that contains the claimed amount per reward, following same order as "rewardsList"
    **/
-  function claimAllRewardsToSelf(address[] calldata assets)
-    external
-    returns (address[] memory rewardsList, uint256[] memory claimedAmounts);
+  function claimAllRewardsToSelf(
+    address[] calldata assets
+  ) external returns (address[] memory rewardsList, uint256[] memory claimedAmounts);
 }
 
 /**
@@ -542,11 +527,7 @@ interface IEmissionManager {
    * @param reward The reward token that incentives the asset
    * @param newDistributionEnd The end date of the incentivization, in unix time format
    **/
-  function setDistributionEnd(
-    address asset,
-    address reward,
-    uint32 newDistributionEnd
-  ) external;
+  function setDistributionEnd(address asset, address reward, uint32 newDistributionEnd) external;
 
   /**
    * @dev Sets the emission per second of a set of reward distributions
