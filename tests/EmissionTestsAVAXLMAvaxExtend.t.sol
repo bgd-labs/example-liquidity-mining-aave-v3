@@ -50,7 +50,7 @@ contract EmissionTestsAVAXLMAvaxExtend is BaseTest {
   address USDt_A_TOKEN_WHALE = 0x43B87443CC4a6dd2a8b8801D26D1641Bb04060C8;
 
   function setUp() public {
-    vm.createSelectFork(vm.rpcUrl('avalanche'), 52073788);
+    vm.createSelectFork(vm.rpcUrl('avalanche'), 52129521);
   }
 
   function test_activation() public {
